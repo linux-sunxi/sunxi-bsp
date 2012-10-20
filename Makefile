@@ -21,4 +21,4 @@ sunxi-tools/Makefile:
 	git submodule init
 	git submodule update sunxi-tools
 
-include boards.mk
+-include boards.mk
