@@ -1,4 +1,5 @@
-.PHONY: all clean tools
+.PHONY: all clean help
+.PHONY: boards tools
 
 default: help
 
@@ -6,7 +7,7 @@ help:
 	@echo Supported targets:
 	@echo $(BOARDS)
 
-all:
+all: tools
 
 clean:
 	rm -f boards.mk
@@ -14,8 +15,8 @@ clean:
 tools: sunxi-tools/Makefile
 	$(MAKE) -C sunxi-tools
 
-boards.mk: scripts/boards.sh
-	@$(SHELL) $^
+boards boards.mk:
+	@$(SHELL) scripts/boards.sh
 
 sunxi-tools/Makefile:
 	git submodule init
