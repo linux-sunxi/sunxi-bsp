@@ -6,18 +6,20 @@ if [ ! -d sunxi-boards/sys_config/ ]; then
 	git submodule update sunxi-boards
 fi
 
-boards() {
+generate_boards_mk() {
+	echo "BOARDS = \\"
+
 	ls -1 sunxi-boards/sys_config/*/*.fex |
 	sed -n -e 's|.*/\([^/]\+\)\.fex$|\1|p' | sort -V |
 	sed -e 's|.*|\t\0 \0-android \\|'
-}
 
-cat <<EOT > boards.mk~
-BOARDS= \\
-$(boards)
+	cat <<EOT
 
 
 \$(BOARDS):
 	\$(SHELL) scripts/boards.sh \$@
 EOT
+}
+
+generate_boards_mk > boards.mk~
 mv boards.mk~ boards.mk
