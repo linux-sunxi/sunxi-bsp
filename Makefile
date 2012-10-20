@@ -12,14 +12,16 @@ all: tools
 clean:
 	rm -f boards.mk
 
-tools: sunxi-tools/Makefile
+tools: sunxi-tools-update
 	$(MAKE) -C sunxi-tools
 
 boards boards.mk:
 	@$(SHELL) scripts/boards.sh
 
-sunxi-tools/Makefile:
+submodule-init:
 	git submodule init
-	git submodule update sunxi-tools
+
+%-update: submodule-init
+	git submodule update $*
 
 -include boards.mk

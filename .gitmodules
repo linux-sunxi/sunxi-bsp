@@ -10,3 +10,6 @@
 [submodule "linux-sunxi"]
 	path = linux-sunxi
 	url = ../linux-sunxi.git
+[submodule "mali-libs"]
+	path = mali-libs
+	url = ../mali-libs.git
