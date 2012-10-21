@@ -31,11 +31,12 @@ submodule-init:
 u-boot: u-boot-sunxi-update
 	$(MAKE) -C u-boot-sunxi $(BOARD) CROSS_COMPILE=arm-linux-gnueabi-
 
+O_PATH=build/linux-$(KERNEL_CONFIG)
 linux: linux-sunxi-update
-	$(MAKE) -C linux-sunxi ARCH=arm $(KERNEL_CONFIG)
-	$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${cross_compiler} uImage
-	$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=output modules
-	$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=output modules_install
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm $(KERNEL_CONFIG)
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} uImage
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=$(O_PATH) modules
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=$(O_PATH) modules_install
 
 -include board.mk
 -include chosen_board.mk
