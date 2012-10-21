@@ -3,6 +3,7 @@
 .PHONY: submodule-init %-update u-boot linux
 
 cross_compiler=arm-linux-gnueabihf-
+OUTPUT_DIR=output
 
 default: help
 
@@ -37,6 +38,18 @@ linux: linux-sunxi-update
 	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} uImage
 	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=$(O_PATH) modules
 	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${cross_compiler} INSTALL_MOD_PATH=$(O_PATH) modules_install
+
+script.bin: $(OUTPUT_DIR) tools
+	sunxi-tools/fex2bin sunxi-boards/sys_config/$(SOC)/$(BOARD).fex > $(OUTPUT_DIR)/$(BOARD).bin
+
+boot.scr: $(OUTPUT_DIR)
+	@echo TODO boot.scr
+
+$(OUTPUT_DIR):
+	mkdir $(OUTPUT_DIR)
+
+hwpack: u-boot boot.scr script.bin linux
+	@echo TODO hwpack
 
 -include board.mk
 -include chosen_board.mk
