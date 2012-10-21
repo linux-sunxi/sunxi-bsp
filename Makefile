@@ -2,7 +2,7 @@
 .PHONY: tools
 .PHONY: submodule-init %-update u-boot linux
 
-CROSS_COMPILER=arm-linux-gnueabihf-
+CROSS_COMPILE=arm-linux-gnueabihf-
 OUTPUT_DIR=output
 
 all: tools
@@ -17,17 +17,17 @@ submodule-init:
 	git submodule init
 
 %-update: submodule-init
-	git submodule update $*
+	[ -e $*/.git ] || git submodule update $*
 
 u-boot: u-boot-sunxi-update
-	$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=${CROSS_COMPILER}
+	$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=${CROSS_COMPILE}
 
 O_PATH=build/linux-$(KERNEL_CONFIG)
 linux: linux-sunxi-update
 	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm $(KERNEL_CONFIG)
-	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILER} uImage
-	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILER} INSTALL_MOD_PATH=$(O_PATH) modules
-	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILER} INSTALL_MOD_PATH=$(O_PATH) modules_install
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} uImage
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=$(O_PATH) modules
+	$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=$(O_PATH) modules_install
 
 script.bin: $(OUTPUT_DIR) tools
 	sunxi-tools/fex2bin sunxi-boards/sys_config/$(SOC)/$(BOARD).fex > $(OUTPUT_DIR)/$(BOARD).bin
