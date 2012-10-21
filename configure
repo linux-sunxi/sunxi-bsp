@@ -46,7 +46,7 @@ usage() {
 if [ $# -eq 0 ]; then
 	usage
 elif ls -1 sunxi-boards/sys_config/*/${1%-android}.fex 2> /dev/null 1>&2; then
-	out=board.mk
+	out=chosen_board.mk
 	generate_board_mk "$1" > $out~
 	mv $out~ $out
 else
