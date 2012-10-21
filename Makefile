@@ -35,38 +35,46 @@ boot.scr:
 
 hwpack: u-boot boot.scr script.bin linux
 	$(Q)echo WIP hwpack
-	$(Q)mkdir -p $(OUTPUT_DIR)/rootfs
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs
 
 	$(Q)## Only support Debian/Ubuntu for now
-	#$(Q)cp a10-config/rootfs/debian-ubuntu/* $(OUTPUT_DIR)/rootfs -rf
+	#$(Q)cp a10-config/rootfs/debian-ubuntu/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs -rf
 
 	$(Q)## bins
-	$(Q)mkdir -p $(OUTPUT_DIR)/rootfs/usr/bin
-	#$(Q)cp ../../a10-tools/a1x-initramfs.sh $(OUTPUT_DIR)/rootfs/usr/bin
-	#$(Q)chmod 755 $(OUTPUT_DIR)/rootfs/usr/bin/a1x-initramfs.sh
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin
+	#$(Q)cp ../../a10-tools/a1x-initramfs.sh $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin
+	#$(Q)chmod 755 $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin/a1x-initramfs.sh
 
 	$(Q)## libs
-	$(Q)mkdir -p $(OUTPUT_DIR)/rootfs/bin-backup
-	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/rootfs -rf
-	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/rootfs/bin-backup -rf
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/bin-backup
+	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs -rf
+	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/bin-backup -rf
 
 	$(Q)## kernel
-	$(Q)mkdir -p $(OUTPUT_DIR)/kernel
-	$(Q)cp linux-sunxi/$(O_PATH)/arch/arm/boot/uImage $(OUTPUT_DIR)/kernel/
-	$(Q)cp $(OUTPUT_DIR)/$(BOARD).bin $(OUTPUT_DIR)/kernel/
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel
+	$(Q)cp linux-sunxi/$(O_PATH)/arch/arm/boot/uImage $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/
+	$(Q)cp $(OUTPUT_DIR)/$(BOARD).bin $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/
 	$(Q)## boot.scr (optional)
-	-$(Q)cp $(OUTPUT_DIR)/boot.scr $(OUTPUT_DIR)/kernel/boot.scr 
+	-$(Q)cp $(OUTPUT_DIR)/boot.scr $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/boot.scr 
 
 	$(Q)## kernel modules
-	$(Q)cp linux-sunxi/$(O_PATH)/output/lib $(OUTPUT_DIR)/rootfs/lib -rf
+	$(Q)cp linux-sunxi/$(O_PATH)/output/lib $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/lib -rf
 
 	$(Q)## bootloader
-	$(Q)mkdir -p $(OUTPUT_DIR)/bootloader
-	$(Q)cp u-boot-sunxi/spl/sunxi-spl.bin $(OUTPUT_DIR)/bootloader/
-	$(Q)cp u-boot-sunxi/u-boot.bin $(OUTPUT_DIR)/bootloader/
+	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader
+	$(Q)cp u-boot-sunxi/spl/sunxi-spl.bin $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader/
+	$(Q)cp u-boot-sunxi/u-boot.bin $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader/
 
 	$(Q)## compress hwpack
-	$(Q)7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on ./$(BOARD)_hwpack.7z $(OUTPUT_DIR)
+	$(Q)cd $(OUTPUT_DIR)/$(BOARD)_hwpack/ && 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on ../$(BOARD)_hwpack.7z .
+
+hwpack-install: 
+ifndef SD_CARD
+	$(Q)echo "Define SD_CARD variable"
+else
+	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(OUTPUT_DIR)/$(BOARD)_hwpack.7z norootfs
+endif
 
 update: submodule-init
 	$(Q)git submodule -q foreach git pull origin HEAD
