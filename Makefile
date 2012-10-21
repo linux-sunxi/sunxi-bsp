@@ -15,12 +15,6 @@ clean:
 tools: sunxi-tools-repository-init
 	$(Q)$(MAKE) -C sunxi-tools
 
-submodule-init:
-	$(Q)git submodule init
-
-%-repository-init: submodule-init
-	$(Q)[ -e $*/.git ] || git submodule update $*
-
 u-boot: u-boot-sunxi-repository-init
 	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=${CROSS_COMPILE}
 
@@ -73,5 +67,15 @@ hwpack: u-boot boot.scr script.bin linux
 
 	$(Q)## compress hwpack
 	$(Q)7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on ./$(BOARD)_hwpack.7z $(OUTPUT_DIR)
+
+update: submodule-init
+	$(Q)git submodule -q foreach git pull origin HEAD
+
+submodule-init:
+	$(Q)git submodule init
+
+%-repository-init: submodule-init
+	$(Q)[ -e $*/.git ] || git submodule update $*
+
 
 include chosen_board.mk
