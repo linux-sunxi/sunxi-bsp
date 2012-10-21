@@ -6,24 +6,15 @@ if [ ! -d sunxi-boards/sys_config/ ]; then
 	git submodule update sunxi-boards
 fi
 
-generate_boards_mk() {
-	echo "BOARDS = \\"
-
+list_boards() {
 	ls -1 sunxi-boards/sys_config/*/*.fex |
 	sed -n -e 's|.*/\([^/]\+\)\.fex$|\1|p' | sort -V |
-	sed -e 's|.*|\t\0 \0-android \\|'
-
-	cat <<EOT
-
-
-\$(BOARDS):
-	\$(SHELL) scripts/boards.sh \$@
-EOT
+	sed -e 's|.*|\t* \0 \0-android|'
 }
 
 # keep the output `sh` friendly
 # i.e., no spaces around the '='
-generate_chosen_board_mk() {
+generate_board_mk() {
 	local board="${1%-android}" android= soc=
 
 	[ "$board" = "$1" ] || android=yes
@@ -43,14 +34,23 @@ generate_chosen_board_mk() {
 	fi
 }
 
+usage() {
+	cat <<-EOT >&2
+	Usage: $0 <board>
+
+	supported boards:
+	EOT
+	list_boards
+}
+
 if [ $# -eq 0 ]; then
-	out=board.mk
-	generate_boards_mk > $out~
+	usage
 elif ls -1 sunxi-boards/sys_config/*/${1%-android}.fex 2> /dev/null 1>&2; then
-	out=chosen_board.mk
-	generate_chosen_board_mk $1 > $out~
+	out=board.mk
+	generate_board_mk "$1" > $out~
+	mv $out~ $out
 else
 	echo "$1: invalid board name" >&2
+	usage
 	exit 1
 fi
-mv $out~ $out

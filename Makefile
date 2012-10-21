@@ -1,31 +1,17 @@
 .PHONY: all clean help
-.PHONY: boards tools
+.PHONY: tools
 .PHONY: submodule-init %-update u-boot linux
 
 CROSS_COMPILER=arm-linux-gnueabihf-
 OUTPUT_DIR=output
 
-default: help
-
-help:
-	@echo Supported targets:
-	@echo $(BOARDS)
-	@echo
-	@echo After choosing a target the following are also supported:
-	@echo u-boot linux
-
-
 all: tools
 
 clean:
-	rm -f boards.mk
 	rm -f chosen_board.mk
 
 tools: sunxi-tools-update
 	$(MAKE) -C sunxi-tools
-
-boards boards.mk:
-	@$(SHELL) scripts/boards.sh
 
 submodule-init:
 	git submodule init
@@ -55,5 +41,4 @@ $(OUTPUT_DIR):
 hwpack: u-boot boot.scr script.bin linux
 	@echo TODO hwpack
 
--include board.mk
--include chosen_board.mk
+include chosen_board.mk
