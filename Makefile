@@ -21,8 +21,8 @@ O_PATH=build/linux-$(KERNEL_CONFIG)
 linux: linux-sunxi/.git
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm $(KERNEL_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} uImage
-	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=$(O_PATH) modules
-	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=$(O_PATH) modules_install
+	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=. modules
+	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=. modules_install
 
 script.bin: tools
 	$(Q)mkdir -p $(OUTPUT_DIR)
@@ -58,7 +58,7 @@ hwpack: u-boot boot.scr script.bin linux
 	-$(Q)cp $(OUTPUT_DIR)/boot.scr $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/boot.scr 
 
 	$(Q)## kernel modules
-	$(Q)cp linux-sunxi/$(O_PATH)/output/lib $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/lib -rf
+	$(Q)cp linux-sunxi/$(O_PATH)/lib/modules $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/lib -rf
 
 	$(Q)## bootloader
 	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader
