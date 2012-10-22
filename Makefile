@@ -1,6 +1,5 @@
 .PHONY: all clean help
-.PHONY: tools
-.PHONY: submodule-init %-repository-init u-boot linux hwpack
+.PHONY: tools u-boot linux hwpack hwpack-install
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 OUTPUT_DIR=output
@@ -12,14 +11,14 @@ clean:
 	rm -rf $(OUTPUT_DIR)
 	rm -f chosen_board.mk
 
-tools: sunxi-tools-repository-init
+tools: sunxi-tools/.git
 	$(Q)$(MAKE) -C sunxi-tools
 
-u-boot: u-boot-sunxi-repository-init
-	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=${CROSS_COMPILE}
+u-boot: u-boot-sunxi/.git
+	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=$(CROSS_COMPILE)
 
 O_PATH=build/linux-$(KERNEL_CONFIG)
-linux: linux-sunxi-repository-init
+linux: linux-sunxi/.git
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm $(KERNEL_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} uImage
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=$(O_PATH) modules
@@ -69,20 +68,19 @@ hwpack: u-boot boot.scr script.bin linux
 	$(Q)## compress hwpack
 	$(Q)cd $(OUTPUT_DIR)/$(BOARD)_hwpack/ && 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on ../$(BOARD)_hwpack.7z .
 
-hwpack-install: 
+hwpack-install: hwpack
 ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
 else
 	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(OUTPUT_DIR)/$(BOARD)_hwpack.7z norootfs
 endif
 
-update: submodule-init
+update:
+	$(Q)git submodule init
 	$(Q)git submodule -q foreach git pull origin HEAD
 
-submodule-init:
+%/.git:
 	$(Q)git submodule init
-
-%-repository-init: submodule-init
 	$(Q)[ -e $*/.git ] || git submodule update $*
 
 
