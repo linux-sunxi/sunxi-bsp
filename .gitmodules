@@ -13,3 +13,6 @@
 [submodule "mali-libs"]
 	path = mali-libs
 	url = ../mali-libs.git
+[submodule "allwinner-tools"]
+	path = allwinner-tools
+	url = ../allwinner-tools.git
