@@ -16,3 +16,6 @@
 [submodule "allwinner-tools"]
 	path = allwinner-tools
 	url = ../allwinner-tools.git
+[submodule "cedarx-libs"]
+	path = cedarx-libs
+	url = ../cedarx-libs.git
