@@ -1,7 +1,9 @@
 .PHONY: all clean help
 .PHONY: tools u-boot linux hwpack hwpack-install
+.PHONY: configure u-boot-configure linux-configure
 
 CROSS_COMPILE=arm-linux-gnueabihf-
+U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
 OUTPUT_DIR=output
 Q=@
 
@@ -11,27 +13,39 @@ clean:
 	rm -rf $(OUTPUT_DIR)
 	rm -f chosen_board.mk
 
+## tools
 tools: sunxi-tools/.git
 	$(Q)$(MAKE) -C sunxi-tools
 
-u-boot: u-boot-sunxi/.git
-	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) CROSS_COMPILE=$(CROSS_COMPILE)
+## u-boot
+u-boot-configure: u-boot-sunxi/.git
+	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=build/$(UBOOT_CONFIG) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE)
 
+u-boot:
+	$(Q)$(MAKE) -C u-boot-sunxi O=build/$(UBOOT_CONFIG) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE)
+
+## linux
 O_PATH=build/linux-$(KERNEL_CONFIG)
-linux: linux-sunxi/.git
+linux-configure: linux-sunxi/.git
+	$(Q)mkdir -p linux-sunxi/$(O_PATH)
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm $(KERNEL_CONFIG)
+
+linux:
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} uImage
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=. modules
 	$(Q)$(MAKE) -C linux-sunxi O=$(O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} INSTALL_MOD_PATH=. modules_install
 
+## script.bin
 script.bin: tools
 	$(Q)mkdir -p $(OUTPUT_DIR)
 	$(Q)sunxi-tools/fex2bin sunxi-boards/sys_config/$(SOC)/$(BOARD).fex > $(OUTPUT_DIR)/$(BOARD).bin
 
+## boot.scr
 boot.scr:
 	$(Q)mkdir -p $(OUTPUT_DIR)
 	$(Q)[ -e boot.cmd ] &&mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(OUTPUT_DIR)/boot.scr ||echo
 
+## hwpack
 hwpack: u-boot boot.scr script.bin linux
 	$(Q)echo WIP hwpack
 	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack
@@ -75,6 +89,8 @@ else
 	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(OUTPUT_DIR)/$(BOARD)_hwpack.7z norootfs
 endif
 
+configure: u-boot-configure linux-configure
+
 update:
 	$(Q)git submodule init
 	$(Q)git submodule -q foreach git pull origin HEAD
@@ -82,6 +98,5 @@ update:
 %/.git:
 	$(Q)git submodule init
 	$(Q)[ -e $*/.git ] || git submodule update $*
-
 
 include chosen_board.mk
