@@ -1,7 +1,5 @@
-include chosen_board.mk
-
 .PHONY: all clean help
-.PHONY: tools u-boot linux hwpack hwpack-install
+.PHONY: tools u-boot linux libs hwpack hwpack-install
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
@@ -10,6 +8,7 @@ BUILD_PATH=$(PWD)/build
 Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
+include chosen_board.mk
 
 all: hwpack
 
@@ -56,9 +55,8 @@ boot.scr:
 	$(Q)[ -e boot.cmd ] && mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(OUTPUT_DIR)/boot.scr ||echo
 
 ## hwpack
-hwpack: u-boot boot.scr script.bin linux
+hwpack: u-boot boot.scr script.bin linux libs
 	$(Q)scripts/mk_hwpack.sh $(U_O_PATH) $(K_O_PATH) $(OUTPUT_DIR)
-
 
 hwpack-install: hwpack
 ifndef SD_CARD
@@ -67,6 +65,8 @@ else
 	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(OUTPUT_DIR)/$(BOARD)_hwpack.7z norootfs
 endif
 
+libs: mali-libs/.git cedarx-libs/.git
+
 update:
 	$(Q)git submodule init
 	$(Q)git submodule -q foreach git pull origin HEAD
@@ -74,4 +74,3 @@ update:
 %/.git:
 	$(Q)git submodule init
 	$(Q)git submodule update $*
-
