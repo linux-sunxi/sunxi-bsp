@@ -1,10 +1,12 @@
+include chosen_board.mk
+
 .PHONY: all clean help
 .PHONY: tools u-boot linux hwpack hwpack-install
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
 OUTPUT_DIR=output
-Q=@
+Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
 BUILD_PATH=$(PWD)/build
@@ -25,10 +27,10 @@ U_CONFIG_MK=$(U_O_PATH)/include/config.mk
 
 $(U_CONFIG_MK): u-boot-sunxi/.git
 	$(Q)mkdir -p $(U_O_PATH)
-	$(Q)[ -s "$(U_CONFIG_MK)" ] || $(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE)
+	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
 u-boot: $(U_CONFIG_MK)
-	$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
+	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
 ## linux
 K_O_PATH=$(BUILD_PATH)/linux-$(KERNEL_CONFIG)
@@ -36,7 +38,7 @@ K_DOT_CONFIG=$(K_O_PATH)/.config
 
 $(K_DOT_CONFIG): linux-sunxi/.git
 	$(Q)mkdir -p $(K_O_PATH)
-	$(Q)[ -s "$(K_DOT_CONFIG)" ] || $(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm $(KERNEL_CONFIG)
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm $(KERNEL_CONFIG)
 
 linux: $(K_DOT_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm oldconfig
@@ -105,4 +107,3 @@ update:
 	$(Q)git submodule init
 	$(Q)[ -e $*/.git ] || git submodule update $*
 
-include chosen_board.mk

@@ -1,1 +1,3 @@
-/boards.mk
+/chosen_board.mk
+/build/
+/output/
