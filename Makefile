@@ -73,5 +73,5 @@ update:
 
 %/.git:
 	$(Q)git submodule init
-	$(Q)[ -e $*/.git ] || git submodule update $*
+	$(Q)git submodule update $*
 
