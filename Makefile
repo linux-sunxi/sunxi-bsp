@@ -56,7 +56,7 @@ boot.scr:
 
 ## hwpack
 hwpack: u-boot boot.scr script.bin linux libs
-	$(Q)scripts/mk_hwpack.sh $(U_O_PATH) $(K_O_PATH) $(OUTPUT_DIR)
+	$(Q)scripts/mk_hwpack.sh
 
 hwpack-install: hwpack
 ifndef SD_CARD
