@@ -57,7 +57,7 @@ boot.scr:
 
 ## hwpack
 hwpack: u-boot boot.scr script.bin linux
-	$(Q)scripts/mk_hwpack.sh $(U_O_PATH) $(K_O_PATH) $(OUTPUT_DIR) $(BOARD)
+	$(Q)scripts/mk_hwpack.sh $(U_O_PATH) $(K_O_PATH) $(OUTPUT_DIR)
 
 
 hwpack-install: hwpack
