@@ -5,11 +5,11 @@ include chosen_board.mk
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
-OUTPUT_DIR=output
+OUTPUT_DIR=$(PWD)/output
+BUILD_PATH=$(PWD)/build
 Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
-BUILD_PATH=$(PWD)/build
 
 all: hwpack
 
@@ -57,40 +57,8 @@ boot.scr:
 
 ## hwpack
 hwpack: u-boot boot.scr script.bin linux
-	$(Q)echo WIP hwpack
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs
+	$(Q)scripts/mk_hwpack.sh $(U_O_PATH) $(K_O_PATH) $(OUTPUT_DIR) $(BOARD)
 
-	$(Q)## Only support Debian/Ubuntu for now
-	#$(Q)cp a10-config/rootfs/debian-ubuntu/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs -rf
-
-	$(Q)## bins
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin
-	#$(Q)cp ../../a10-tools/a1x-initramfs.sh $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin
-	#$(Q)chmod 755 $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/usr/bin/a1x-initramfs.sh
-
-	$(Q)## libs
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/bin-backup
-	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs -rf
-	$(Q)cp mali-libs/r2p4/armhf/x11/* $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/bin-backup -rf
-
-	$(Q)## kernel
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel
-	$(Q)cp $(K_O_PATH)/arch/arm/boot/uImage $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/
-	$(Q)cp $(OUTPUT_DIR)/$(BOARD).bin $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/
-	$(Q)## boot.scr (optional)
-	-$(Q)cp $(OUTPUT_DIR)/boot.scr $(OUTPUT_DIR)/$(BOARD)_hwpack/kernel/boot.scr 
-
-	$(Q)## kernel modules
-	$(Q)cp -a $(K_O_PATH)/output/lib/modules $(OUTPUT_DIR)/$(BOARD)_hwpack/rootfs/lib
-
-	$(Q)## bootloader
-	$(Q)mkdir -p $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader
-	$(Q)cp $(U_O_PATH)/spl/sunxi-spl.bin $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader/
-	$(Q)cp $(U_O_PATH)/u-boot.bin $(OUTPUT_DIR)/$(BOARD)_hwpack/bootloader/
-
-	$(Q)## compress hwpack
-	$(Q)cd $(OUTPUT_DIR)/$(BOARD)_hwpack/ && 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on ../$(BOARD)_hwpack.7z .
 
 hwpack-install: hwpack
 ifndef SD_CARD
