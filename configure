@@ -49,7 +49,7 @@ elif ls -1 sunxi-boards/sys_config/*/${1%-android}.fex 2> /dev/null 1>&2; then
 	out=chosen_board.mk
 	generate_board_mk "$1" > $out~
 	mv $out~ $out
-	echo "Now run \"make configure\""
+	echo "$1 configured. Now run \`make\`"
 else
 	echo "$1: invalid board name" >&2
 	usage
