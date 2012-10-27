@@ -20,6 +20,7 @@ MALI=r3p0
 
 cp_debian_files() {
 	local rootfs="$1" malidir="mali-libs/$MALI/$ABI/x11"
+	local cedarxdir="cedarx-libs/libcedarv/linux-$ABI"
 
 	echo "Debian/Ubuntu hwpack"
 	#cp a10-config/rootfs/debian-ubuntu/* ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs -rf
@@ -28,6 +29,7 @@ cp_debian_files() {
 	mkdir -p "$rootfs/bin-backup"
 	cp -rf "$malidir"/* "$rootfs/"
 	cp -rf "$malidir"/* "$rootfs/bin-backup/"
+	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 }
 
 cp_android_files() {
