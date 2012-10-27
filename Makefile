@@ -5,6 +5,7 @@ CROSS_COMPILE=arm-linux-gnueabihf-
 U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
 OUTPUT_DIR=$(PWD)/output
 BUILD_PATH=$(PWD)/build
+ROOTFS?=norootfs
 Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
@@ -66,7 +67,7 @@ ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
 	$(Q)false
 else
-	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(HWPACK) norootfs
+	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
 endif
 
 libs: mali-libs/.git cedarx-libs/.git
