@@ -47,12 +47,12 @@ linux: $(K_DOT_CONFIG)
 ## script.bin
 script.bin: tools
 	$(Q)mkdir -p $(OUTPUT_DIR)
-	$(Q)sunxi-tools/fex2bin sunxi-boards/sys_config/$(SOC)/$(BOARD).fex > $(OUTPUT_DIR)/$(BOARD).bin
+	$(Q)sunxi-tools/fex2bin sunxi-boards/sys_config/$(SOC)/$(BOARD).fex > $(BUILD_PATH)/$(BOARD).bin
 
 ## boot.scr
 boot.scr:
 	$(Q)mkdir -p $(OUTPUT_DIR)
-	$(Q)[ -e boot.cmd ] && mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(OUTPUT_DIR)/boot.scr ||echo
+	$(Q)[ ! -s boot.cmd ] || mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(BUILD_PATH)/boot.scr
 
 ## hwpack
 hwpack: u-boot boot.scr script.bin linux libs

@@ -64,10 +64,10 @@ create_hwpack() {
 	## kernel
 	mkdir -p "$kerneldir"
 	cp "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
-	cp "$OUTPUT_DIR/$BOARD.bin" "$kerneldir/script.bin"
+	cp "build/$BOARD.bin" "$kerneldir/script.bin"
 
 	## boot.scr (optional)
-	cp "$OUTPUT_DIR/boot.scr" "$kerneldir/boot.scr" || true
+	cp "build/boot.scr" "$kerneldir/boot.scr" || true
 
 	## kernel modules
 	cp -a "$K_O_PATH/output/lib/modules" "${rootfs}/lib/"
