@@ -13,9 +13,7 @@ set -e
 
 U_O_PATH="build/$UBOOT_CONFIG-u-boot"
 K_O_PATH="build/$KERNEL_CONFIG-linux"
-
-OUTPUT_DIR="output"
-HWPACK_DIR="$OUTPUT_DIR/${BOARD}_hwpack"
+HWPACK_DIR="build/${BOARD}_hwpack"
 
 ABI=armhf
 MALI=r3p0
@@ -83,4 +81,4 @@ create_hwpack() {
 	cd - > /dev/null
 }
 
-create_hwpack "../${BOARD}_hwpack.7z"
+create_hwpack "../../output/${BOARD}_hwpack.7z"
