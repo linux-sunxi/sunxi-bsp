@@ -10,6 +10,12 @@ J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
 include chosen_board.mk
 
+HWPACK=$(OUTPUT_DIR)/$(BOARD)_hwpack.7z
+U_O_PATH=$(BUILD_PATH)/$(UBOOT_CONFIG)-u-boot
+K_O_PATH=$(BUILD_PATH)/$(KERNEL_CONFIG)-linux
+U_CONFIG_MK=$(U_O_PATH)/include/config.mk
+K_DOT_CONFIG=$(K_O_PATH)/.config
+
 all: hwpack
 
 clean:
@@ -21,9 +27,6 @@ tools: sunxi-tools/.git
 	$(Q)$(MAKE) -C sunxi-tools
 
 ## u-boot
-U_O_PATH=$(BUILD_PATH)/$(UBOOT_CONFIG)-u-boot
-U_CONFIG_MK=$(U_O_PATH)/include/config.mk
-
 $(U_CONFIG_MK): u-boot-sunxi/.git
 	$(Q)mkdir -p $(U_O_PATH)
 	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
@@ -32,8 +35,6 @@ u-boot: $(U_CONFIG_MK)
 	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
 ## linux
-K_O_PATH=$(BUILD_PATH)/$(KERNEL_CONFIG)-linux
-K_DOT_CONFIG=$(K_O_PATH)/.config
 
 $(K_DOT_CONFIG): linux-sunxi/.git
 	$(Q)mkdir -p $(K_O_PATH)
@@ -55,14 +56,17 @@ boot.scr:
 	$(Q)[ ! -s boot.cmd ] || mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(BUILD_PATH)/boot.scr
 
 ## hwpack
-hwpack: u-boot boot.scr script.bin linux libs
-	$(Q)scripts/mk_hwpack.sh
+$(HWPACK): u-boot boot.scr script.bin linux libs
+	$(Q)scripts/mk_hwpack.sh $@
 
-hwpack-install: hwpack
+hwpack: $(HWPACK)
+
+hwpack-install: $(HWPACK)
 ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
+	$(Q)false
 else
-	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(OUTPUT_DIR)/$(BOARD)_hwpack.7z norootfs
+	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(HWPACK) norootfs
 endif
 
 libs: mali-libs/.git cedarx-libs/.git

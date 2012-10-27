@@ -92,4 +92,6 @@ create_hwpack() {
 	cd - > /dev/null
 }
 
-create_hwpack "../../output/${BOARD}_hwpack.7z"
+[ $# -eq 1 ] || die "Usage: $0 <hwpack.7z>"
+
+create_hwpack "$1"
