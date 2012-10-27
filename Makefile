@@ -21,7 +21,7 @@ tools: sunxi-tools/.git
 	$(Q)$(MAKE) -C sunxi-tools
 
 ## u-boot
-U_O_PATH=$(BUILD_PATH)/u-boot-$(UBOOT_CONFIG)
+U_O_PATH=$(BUILD_PATH)/$(UBOOT_CONFIG)-u-boot
 U_CONFIG_MK=$(U_O_PATH)/include/config.mk
 
 $(U_CONFIG_MK): u-boot-sunxi/.git
@@ -32,7 +32,7 @@ u-boot: $(U_CONFIG_MK)
 	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
 ## linux
-K_O_PATH=$(BUILD_PATH)/linux-$(KERNEL_CONFIG)
+K_O_PATH=$(BUILD_PATH)/$(KERNEL_CONFIG)-linux
 K_DOT_CONFIG=$(K_O_PATH)/.config
 
 $(K_DOT_CONFIG): linux-sunxi/.git

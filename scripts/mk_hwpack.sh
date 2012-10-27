@@ -11,8 +11,8 @@ set -e
 
 . ./chosen_board.mk
 
-U_O_PATH="build/u-boot-$UBOOT_CONFIG"
-K_O_PATH="build/linux-$KERNEL_CONFIG"
+U_O_PATH="build/$UBOOT_CONFIG-u-boot"
+K_O_PATH="build/$KERNEL_CONFIG-linux"
 
 OUTPUT_DIR="output"
 HWPACK_DIR="$OUTPUT_DIR/${BOARD}_hwpack"
