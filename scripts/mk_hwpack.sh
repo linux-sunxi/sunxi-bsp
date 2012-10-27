@@ -23,13 +23,17 @@ cp_debian_files() {
 	local cedarxdir="cedarx-libs/libcedarv/linux-$ABI"
 
 	echo "Debian/Ubuntu hwpack"
-	#cp a10-config/rootfs/debian-ubuntu/* ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs -rf
+	cp -rf rootfs/debian-ubuntu/* "$rootfs/"
 
 	## libs
 	mkdir -p "$rootfs/bin-backup"
 	cp -rf "$malidir"/* "$rootfs/"
 	cp -rf "$malidir"/* "$rootfs/bin-backup/"
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
+
+	## bins
+	#cp ../../a10-tools/a1x-initramfs.sh ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin
+	#chmod 755 ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin/a1x-initramfs.sh
 }
 
 cp_android_files() {
@@ -56,10 +60,6 @@ create_hwpack() {
 	else
 		cp_android_files "$rootfs"
 	fi
-
-	## bins
-	#cp ../../a10-tools/a1x-initramfs.sh ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin
-	#chmod 755 ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin/a1x-initramfs.sh
 
 	## kernel
 	mkdir -p "$kerneldir"
