@@ -70,7 +70,9 @@ create_hwpack() {
 	cp "build/boot.scr" "$kerneldir/boot.scr" || true
 
 	## kernel modules
-	cp -a "$K_O_PATH/output/lib/modules" "${rootfs}/lib/"
+	cp -a "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
+	rm -f "$rootfs/lib/modules"/*/source
+	rm -f "$rootfs/lib/modules"/*/build
 
 	## bootloader
 	mkdir -p "$bootloader"
