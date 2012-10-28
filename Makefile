@@ -14,13 +14,13 @@ include chosen_board.mk
 HWPACK=$(OUTPUT_DIR)/$(BOARD)_hwpack.7z
 U_O_PATH=$(BUILD_PATH)/$(UBOOT_CONFIG)-u-boot
 K_O_PATH=$(BUILD_PATH)/$(KERNEL_CONFIG)-linux
-U_CONFIG_MK=$(U_O_PATH)/include/config.mk
+U_CONFIG_H=$(U_O_PATH)/include/config.h
 K_DOT_CONFIG=$(K_O_PATH)/.config
 
 all: hwpack
 
 clean:
-	rm -rf $(OUTPUT_DIR)
+	rm -rf $(BUILD_PATH)
 	rm -f chosen_board.mk
 
 ## tools
@@ -28,15 +28,14 @@ tools: sunxi-tools/.git
 	$(Q)$(MAKE) -C sunxi-tools
 
 ## u-boot
-$(U_CONFIG_MK): u-boot-sunxi/.git
+$(U_CONFIG_H): u-boot-sunxi/.git
 	$(Q)mkdir -p $(U_O_PATH)
 	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
-u-boot: $(U_CONFIG_MK)
+u-boot: $(U_CONFIG_H)
 	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
 
 ## linux
-
 $(K_DOT_CONFIG): linux-sunxi/.git
 	$(Q)mkdir -p $(K_O_PATH)
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm $(KERNEL_CONFIG)
@@ -74,7 +73,7 @@ libs: mali-libs/.git cedarx-libs/.git
 
 update:
 	$(Q)git submodule init
-	$(Q)git submodule -q foreach git pull origin HEAD
+	$(Q)git submodule -q foreach git pull --rebase origin HEAD
 
 %/.git:
 	$(Q)git submodule init
