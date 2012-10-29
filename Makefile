@@ -1,5 +1,5 @@
 .PHONY: all clean help
-.PHONY: tools u-boot linux libs hwpack hwpack-install
+.PHONY: android tools u-boot linux libs hwpack hwpack-install
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
@@ -60,6 +60,9 @@ $(HWPACK): u-boot boot.scr script.bin linux libs
 	$(Q)scripts/mk_hwpack.sh $@
 
 hwpack: $(HWPACK)
+
+android:
+	$(Q)scripts/mk_android.sh $@
 
 hwpack-install: $(HWPACK)
 ifndef SD_CARD
