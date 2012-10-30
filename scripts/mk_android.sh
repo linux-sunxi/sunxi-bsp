@@ -19,6 +19,11 @@ REPO_BRANCH="jellybean"
 
 ANDROID_REPO_DIR="$PWD/android"
 PATH="$ANDROID_REPO_DIR:$PATH"
+ACTION="$1"
+
+if [ "$ACTION" != "sync" -a "$ACTION" != "clobber" -a "$ACTION" != "build" ]; then
+    die "Invalid action specified"
+fi
 
 # Do we need to create the repo dir?
 if [ ! -d "$ANDROID_REPO_DIR" ]; then
@@ -41,8 +46,20 @@ repo sync || die "error syncing repo"
 # And keep repo tool up to date
 cp "$ANDROID_REPO_DIR/.repo/repo/repo" "$ANDROID_REPO_DIR/.repo/repo/repo"
 
-# If we weren't invoked as "make android update" we should build the system
-if [ ! "$1" = "update" ]; then
-    . build/envsetup.sh
-    brunch "$BOARD"
+# Update the system: "make android-sync"
+if [ "$ACTION" = "sync" ]; then
+    # We have already updated
+    exit 0
 fi
+
+# Load android env commands
+. build/envsetup.sh
+
+# Clean the tree: "make android-clobber"
+if [ "$ACTION" = "clobber" ]; then
+    mka clobber
+    exit 0
+fi
+
+# Build Android: "make android"
+brunch "$BOARD"
