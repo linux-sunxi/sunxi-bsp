@@ -62,4 +62,5 @@ if [ "$ACTION" = "clobber" ]; then
 fi
 
 # Build Android: "make android"
+./vendor/cm/get-prebuilts
 brunch "cm_$BOARD-userdebug"
