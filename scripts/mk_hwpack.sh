@@ -92,6 +92,7 @@ create_hwpack() {
 		;;
 	*)
 		die "Not supported hwpack format"
+		;;
 	esac
 	cd - > /dev/null
 }
