@@ -83,7 +83,7 @@ create_hwpack() {
 	cd "$HWPACK_DIR"
 	case "$hwpack" in
 	*.7z)
-		7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on "$hwpack" .
+		7z u -up1q0r2x1y2z1w2 -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on "$hwpack" .
 		;;
 	*.tar.bz2)
 		find . ! -type d | cut -c3- | sort -V | tar -jcf "$hwpack" -T -
