@@ -19,16 +19,18 @@ ABI=armhf
 MALI=r3p0
 
 cp_debian_files() {
-	local rootfs="$1" malidir="mali-libs/$MALI/$ABI/x11"
+	local rootfs="$1" malidir="mali-libs/$MALI/$ABI"
 	local cedarxdir="cedarx-libs/libcedarv/linux-$ABI"
+	local libtype="x11" # or framebuffer
 
 	echo "Debian/Ubuntu hwpack"
-	cp -rf rootfs/debian-ubuntu/* "$rootfs/"
+	rsync -ar "rootfs/debian-ubuntu"/* "$rootfs/"
 
 	## libs
-	mkdir -p "$rootfs/bin-backup"
-	cp -rf "$malidir"/* "$rootfs/"
-	cp -rf "$malidir"/* "$rootfs/bin-backup/"
+	rsync -ar "$malidir/" "$rootfs/lib/"
+	for file in "$rootfs/lib/$libtype/lib/*" ; do
+		ln -sf $file "$rootfs/lib/" || true
+	done
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
 	## bins
@@ -63,21 +65,21 @@ create_hwpack() {
 
 	## kernel
 	mkdir -p "$kerneldir"
-	cp "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
-	cp "build/$BOARD.bin" "$kerneldir/script.bin"
+	rsync -ar "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
+	rsync -ar "build/$BOARD.bin" "$kerneldir/script.bin"
 
 	## boot.scr (optional)
-	cp "build/boot.scr" "$kerneldir/boot.scr" || true
+	rsync -ar "build/boot.scr" "$kerneldir/boot.scr" || true
 
 	## kernel modules
-	cp -a "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
+	rsync -ar "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
 	rm -f "$rootfs/lib/modules"/*/source
 	rm -f "$rootfs/lib/modules"/*/build
 
 	## bootloader
 	mkdir -p "$bootloader"
-	cp "$U_O_PATH/spl/sunxi-spl.bin" "$bootloader/"
-	cp "$U_O_PATH/u-boot.bin" "$bootloader/"
+	rsync -ar "$U_O_PATH/spl/sunxi-spl.bin" "$bootloader/"
+	rsync -ar "$U_O_PATH/u-boot.bin" "$bootloader/"
 
 	## compress hwpack
 	cd "$HWPACK_DIR"
