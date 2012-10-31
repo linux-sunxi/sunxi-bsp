@@ -44,7 +44,7 @@ wget "$REPO_LOCAL_MANIFEST" -O "$ANDROID_REPO_DIR/.repo/local_manifest.xml" || d
 repo sync || die "error syncing repo"
 
 # And keep repo tool up to date
-cp "$ANDROID_REPO_DIR/.repo/repo/repo" "$ANDROID_REPO_DIR/.repo/repo/repo"
+cp "$ANDROID_REPO_DIR/.repo/repo/repo" "$ANDROID_REPO_DIR/repo"
 
 # Update the system: "make android-sync"
 if [ "$ACTION" = "sync" ]; then
