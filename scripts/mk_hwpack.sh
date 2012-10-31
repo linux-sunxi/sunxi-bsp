@@ -88,6 +88,8 @@ create_hwpack() {
 	*.tar.bz2)
 		find . ! -type d | cut -c3- | sort -V | tar -jcf "$hwpack" -T -
 		;;
+	*)
+		die "Not supported hwpack format"
 	esac
 	cd - > /dev/null
 }
