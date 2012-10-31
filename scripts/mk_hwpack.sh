@@ -28,9 +28,11 @@ cp_debian_files() {
 
 	## libs
 	rsync -ar "$malidir/" "$rootfs/lib/"
-	for file in "$rootfs/lib/$libtype/lib/*" ; do
-		ln -sf $file "$rootfs/lib/" || true
+	pushd "$rootfs/lib/"
+	for file in "$libtype/lib/*" ; do
+		ln -sf $file .
 	done
+	popd
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
 	## bins
