@@ -62,4 +62,4 @@ if [ "$ACTION" = "clobber" ]; then
 fi
 
 # Build Android: "make android"
-brunch "$BOARD"
+brunch "cm_$BOARD-userdebug"
