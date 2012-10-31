@@ -2,7 +2,6 @@
 .PHONY: tools u-boot linux libs hwpack hwpack-install
 
 CROSS_COMPILE=arm-linux-gnueabihf-
-U_BOOT_CROSS_COMPILE=arm-linux-gnueabi-
 OUTPUT_DIR=$(PWD)/output
 BUILD_PATH=$(PWD)/build
 ROOTFS?=norootfs
@@ -30,10 +29,10 @@ tools: sunxi-tools/.git
 ## u-boot
 $(U_CONFIG_H): u-boot-sunxi/.git
 	$(Q)mkdir -p $(U_O_PATH)
-	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
+	$(Q)$(MAKE) -C u-boot-sunxi $(UBOOT_CONFIG) O=$(U_O_PATH) CROSS_COMPILE=$(CROSS_COMPILE) -j$J
 
 u-boot: $(U_CONFIG_H)
-	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(U_BOOT_CROSS_COMPILE) -j$J
+	$(Q)$(MAKE) -C u-boot-sunxi O=$(U_O_PATH) CROSS_COMPILE=$(CROSS_COMPILE) -j$J
 
 ## linux
 $(K_DOT_CONFIG): linux-sunxi/.git
