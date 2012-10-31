@@ -71,7 +71,7 @@ ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
 	$(Q)false
 else
-	$(Q)scripts/a1x-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
+	$(Q)scripts/sunxi-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
 endif
 
 libs: mali-libs/.git cedarx-libs/.git

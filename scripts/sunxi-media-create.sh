@@ -88,10 +88,10 @@ partitionSD () {
 }
 
 extractHWPack () {
-    echo "Extracting HW Pack $1"
+    echo "Extracting HW Pack $1 to $PWD"
     mkdir -p hwpack
     pushd hwpack
-    7z x ../$1 >> ${logfile}
+    7z x $1 >> ${logfile}
     popd
 }
 
