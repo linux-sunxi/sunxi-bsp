@@ -90,6 +90,9 @@ create_hwpack() {
 	*.tar.bz2)
 		find . ! -type d | cut -c3- | sort -V | tar -jcf "$hwpack" -T -
 		;;
+	*.tar.xz)
+		find . ! -type d | cut -c3- | sort -V | tar -Jcf "$hwpack" -T -
+		;;
 	*)
 		die "Not supported hwpack format"
 		;;

@@ -10,7 +10,7 @@ J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
 include chosen_board.mk
 
-HWPACK=$(OUTPUT_DIR)/$(BOARD)_hwpack.7z
+HWPACK=$(OUTPUT_DIR)/$(BOARD)_hwpack.tar.xz
 U_O_PATH=$(BUILD_PATH)/$(UBOOT_CONFIG)-u-boot
 K_O_PATH=$(BUILD_PATH)/$(KERNEL_CONFIG)-linux
 U_CONFIG_H=$(U_O_PATH)/include/config.h
