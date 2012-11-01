@@ -97,34 +97,24 @@ partitionSD () {
 		die "${subdevice}2: failed to format partition"
 }
 
-extractHWPack () {
+extract() {
 	local f=$(readlink -f "$1")
-	title "Extracting HW Pack"
-
-	mkdir -p "$2"
-	cd "$2"
-	7z x "$f"
-	cd - > /dev/null
-}
-
-extractRootfs () {
-	local f=$(readlink -f "$1")
-	title "Extracting Rootfs"
+	title "Extracting $3"
 
 	mkdir -p "$2"
 	cd "$2"
 	case "$f" in
-	*.bz2)
+	*.tar.bz2|*.tbz2)
 		sudo tar xjf "$f"
 		;;
-	*.gz)
+	*.tar.gz|*.tgz)
 		sudo tar xzf "$f"
 		;;
 	*.7z|*.lzma)
 		sudo 7z x "$f"
 		;;
-	*.xz)
-		sudo tar xJf ../$1
+	*.tar.xz)
+		sudo tar xJf "$f"
 		;;
 	*)
 		die "$f: unknown file extension"
@@ -211,9 +201,10 @@ umountSD $1
 if [ ${hwpack_update_only} -eq 0 ]; then 
     partitionSD $1 
 fi
-extractHWPack $2 $HWPACKDIR/
+
+extract $2 $HWPACKDIR/ "HW Pack"
 if [ ${hwpack_update_only} -eq 0 ]; then 
-    extractRootfs $3 $ROOTFSDIR/
+    extract $3 $ROOTFSDIR/ "RootFS"
 fi
 
 title "Copy U-Boot/SPL to SD Card"
