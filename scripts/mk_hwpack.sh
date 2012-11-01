@@ -29,9 +29,7 @@ cp_debian_files() {
 	## libs
 	rsync -ar "$malidir/" "$rootfs/lib/"
 	cd "$rootfs/lib/"
-	for file in "$libtype/lib/*" ; do
-		ln -sf $file .
-	done
+	ln -sf "$libtype/lib"/* .
 	cd - > /dev/null
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
