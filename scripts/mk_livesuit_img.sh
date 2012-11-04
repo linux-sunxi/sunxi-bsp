@@ -1,3 +1,8 @@
+die() {
+	echo "$*" >&2
+	exit 1
+}
+
 [ -s "./chosen_board.mk" ] || die "please run ./configure first."
 
 #set -e
@@ -89,15 +94,53 @@ do_addchecksum()
 	${BINS}/FileAddSum ${CONFIGS_DIR}/recovery.fex ${CONFIGS_DIR}/vrecovery.fex
 }
 
-do_make_boot_img()
+make_boot_img()
 {
 	echo "Make android boot image"
-	${BINS}/mkbootimg --kernel bImage \
-		--ramdisk rootfs.cpio.gz \
+	${BINS}/mkbootimg --kernel ./build/${KERNEL_CONFIG}-linux/bImage \
+		--ramdisk ./linux-sunxi/rootfs/sun4i_rootfs.cpio.gz \
 		--board 'cubieboard' \
 		--base 0x40000000 \
 		-o boot.img
-
+	mv boot.img ${CONFIGS_DIR}/boot.fex
 }
 
+
+make_rootfs()
+{
+	local f=$(readlink -f "$1")
+	local source=$PWD"/source_tmp"
+	local target=$PWD"/target_tmp"
+
+	echo "Make linux.ext4"
+	mkdir -p $target
+	rm -f linux.ext4
+	dd if=/dev/zero of=linux.ext4 bs=1M count=1024
+	mkfs.ext4 linux.ext4
+	sudo mount linux.ext4 $target -o loop=/dev/loop0
+
+	mkdir -p $source
+	cd $source
+	sudo tar xzf "$f"
+	if [ -d $source/etc ]; then
+		echo "Standard rootfs"
+		sudo cp -a $source/* $target
+	elif [ -d $source/binary/boot/filesystem.dir ]; then
+		echo "Linaro rootfs"
+		sudo cp -a $source/binary/boot/filesystem.dir/* $target
+	else
+		die "Unsupported rootfs"
+	fi
+	
+	cd - > /dev/null
+	sudo umount $target
+	sudo sudo rm -rf $source
+	sudo sudo rm -rf $target
+	mv linux.ext4 ${CONFIGS_DIR}/rootfs.fex
+}
+
+#make_rootfs "$1"
+#make_boot_img
 do_pack_linux
+
+
