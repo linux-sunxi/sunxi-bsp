@@ -24,13 +24,10 @@ cp_debian_files() {
 	local libtype="x11" # or framebuffer
 
 	echo "Debian/Ubuntu hwpack"
-	rsync -ar "rootfs/debian-ubuntu"/* "$rootfs/"
+	cp -r "rootfs/debian-ubuntu"/* "$rootfs/"
 
 	## libs
-	rsync -ar "$malidir/" "$rootfs/lib/"
-	cd "$rootfs/lib/"
-	ln -sf "$libtype/lib"/* .
-	cd - > /dev/null
+	cp -r "$malidir/$libtype/lib"/* "$rootfs/lib/"
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
 	## bins
@@ -45,8 +42,8 @@ cp_android_files() {
 
 	## libs
 	mkdir -p "${rootfs}/bin-backup"
-	cp -rf "$malidir"/* "$rootfs/"
-	cp -rf "$malidir"/* "$rootfs/bin-backup/"
+	cp -r "$malidir"/* "$rootfs/"
+	cp -r "$malidir"/* "$rootfs/bin-backup/"
 }
 
 create_hwpack() {
@@ -54,6 +51,8 @@ create_hwpack() {
 	local rootfs="$HWPACK_DIR/rootfs"
 	local kerneldir="$HWPACK_DIR/kernel"
 	local bootloader="$HWPACK_DIR/bootloader"
+
+	rm -rf "$HWPACK_DIR"
 
 	mkdir -p "$rootfs/usr/bin" "$rootfs/lib"
 
@@ -65,21 +64,21 @@ create_hwpack() {
 
 	## kernel
 	mkdir -p "$kerneldir"
-	rsync -ar "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
-	rsync -ar "build/$BOARD.bin" "$kerneldir/script.bin"
+	cp -r "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
+	cp -r "build/$BOARD.bin" "$kerneldir/script.bin"
 
 	## boot.scr (optional)
-	rsync -ar "build/boot.scr" "$kerneldir/boot.scr" || true
+	cp "build/boot.scr" "$kerneldir/boot.scr" || true
 
 	## kernel modules
-	rsync -ar "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
+	cp -r "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
 	rm -f "$rootfs/lib/modules"/*/source
 	rm -f "$rootfs/lib/modules"/*/build
 
 	## bootloader
 	mkdir -p "$bootloader"
-	rsync -ar "$U_O_PATH/spl/sunxi-spl.bin" "$bootloader/"
-	rsync -ar "$U_O_PATH/u-boot.bin" "$bootloader/"
+	cp -r "$U_O_PATH/spl/sunxi-spl.bin" "$bootloader/"
+	cp -r "$U_O_PATH/u-boot.bin" "$bootloader/"
 
 	## compress hwpack
 	cd "$HWPACK_DIR"
@@ -98,6 +97,7 @@ create_hwpack() {
 		;;
 	esac
 	cd - > /dev/null
+	echo "Done."
 }
 
 [ $# -eq 1 ] || die "Usage: $0 <hwpack.7z>"
