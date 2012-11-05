@@ -20,7 +20,7 @@ cleanup() {
 	done
 
 	# and delete temporal files
-	rm -rf --one-file-system "$TEMP"
+	sudo rm -rf --one-file-system "$TEMP"
 }
 
 die() {
