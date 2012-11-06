@@ -30,7 +30,6 @@ modify_image_cfg()
 #    echo "" >> image.cfg
 }
 
-
 do_addchecksum()
 {
 	echo "do_addchecksum"
@@ -42,24 +41,32 @@ do_addchecksum()
 	${BINS}/FileAddSum ${CONFIGS_DIR}/recovery.fex ${CONFIGS_DIR}/vrecovery.fex
 }
 
-make_boot0_boot1()
+make_bootfs()
 {
-	cp -rf ${LIVESUIT_DIR}/eGon/storage_media/nand/boot0.bin \
-		${LIVESUIT_DIR}/eGon/storage_media/nand/boot1.bin \
-		${CONFIGS_DIR}
-	cp -rf ${LIVESUIT_DIR}/eGon/storage_media/sdcard/boot0.bin ${CONFIGS_DIR}/card_boot0.fex
-	cp -rf ${LIVESUIT_DIR}/eGon/storage_media/sdcard/boot1.bin ${CONFIGS_DIR}/card_boot1.fex
+	cp -rf ${LIVESUIT_DIR}/${SOC}/eFex/split_xxxx.fex  ${CONFIGS_DIR}
+ 	cp -rf ${LIVESUIT_DIR}/${SOC}/eFex/card/mbr.fex  ${CONFIGS_DIR}
+	cp -rf ${LIVESUIT_DIR}/${SOC}/wboot/bootfs ${CONFIGS_DIR}
+	cp -rf ${LIVESUIT_DIR}/${SOC}/wboot/bootfs.ini ${CONFIGS_DIR}
+	cp -rf ${LIVESUIT_DIR}/${SOC}/wboot/diskfs.fex ${CONFIGS_DIR}
 
-	${BINS}/update_23 ${CONFIGS_DIR}/sys_config1.bin ${CONFIGS_DIR}/boot0.bin ${CONFIGS_DIR}/boot1.bin
-	${BINS}/update_23 ${CONFIGS_DIR}/sys_config1.bin ${CONFIGS_DIR}/card_boot0.fex ${CONFIGS_DIR}/card_boot1.fex SDMMC_CARD
-
+	# modify_bootfs_ini
 	${BINS}/update_mbr ${CONFIGS_DIR}/sys_config.bin ${CONFIGS_DIR}/mbr.fex 4 16777216
 	${FSBUILD} ${CONFIGS_DIR}/bootfs.ini ${CONFIGS_DIR}/split_xxxx.fex
 	mv bootfs.fex ${CONFIGS_DIR}/bootloader.fex
 
 	# get env.fex
 	${BINS}/u_boot_env_gen ${LIVESUIT_DIR}/default/env.cfg ${CONFIGS_DIR}/env.fex
+}
 
+make_boot0_boot1()
+{
+	cp -rf ${LIVESUIT_DIR}/${SOC}/eGon/storage_media/nand/boot0.bin ${CONFIGS_DIR}
+	cp -rf ${LIVESUIT_DIR}/${SOC}/eGon/storage_media/nand/boot1.bin ${CONFIGS_DIR}
+	cp -rf ${LIVESUIT_DIR}/${SOC}/eGon/storage_media/sdcard/boot0.bin ${CONFIGS_DIR}/card_boot0.fex
+	cp -rf ${LIVESUIT_DIR}/${SOC}/eGon/storage_media/sdcard/boot1.bin ${CONFIGS_DIR}/card_boot1.fex
+
+	${BINS}/update_23 ${CONFIGS_DIR}/sys_config1.bin ${CONFIGS_DIR}/boot0.bin ${CONFIGS_DIR}/boot1.bin
+	${BINS}/update_23 ${CONFIGS_DIR}/sys_config1.bin ${CONFIGS_DIR}/card_boot0.fex ${CONFIGS_DIR}/card_boot1.fex SDMMC_CARD
 }
 
 make_sys_configs()
@@ -141,6 +148,7 @@ do_pack_linux()
 
 	make_sys_configs
 	make_boot0_boot1
+	make_bootfs
 
 	${DRAGON} ${LIVESUIT_DIR}/image.cfg
 
