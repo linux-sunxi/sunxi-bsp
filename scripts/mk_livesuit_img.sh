@@ -19,6 +19,9 @@ SUNXI_TOOLS=${PWD}/sunxi-tools
 modify_image_cfg()
 {
 	echo "Modifying image.cfg"
+	cp -rf ${LIVESUIT_DIR}/${SOC}/default/image.cfg ${CONFIGS_DIR}
+	sed -i -e "s|^INPUT_DIR..*$|INPUT_DIR=${CONFIGS_DIR}|g" \
+		-e "s|^EFEX_DIR..*$|EFEX_DIR=${LIVESUIT_DIR}/${SOC}/eFex|g" ${CONFIGS_DIR}/image.cfg
 #    sed -i 's/imagename/;imagename/g' image.cfg
 
 #    if [ $PACK_DEBUG = card0 ]; then
@@ -29,6 +32,8 @@ modify_image_cfg()
 #    echo "imagename = $IMG_NAME" >> image.cfg
 #    echo "" >> image.cfg
 }
+
+
 
 do_addchecksum()
 {
@@ -49,13 +54,14 @@ make_bootfs()
 	cp -rf ${LIVESUIT_DIR}/${SOC}/wboot/bootfs.ini ${CONFIGS_DIR}
 	cp -rf ${LIVESUIT_DIR}/${SOC}/wboot/diskfs.fex ${CONFIGS_DIR}
 
-	# modify_bootfs_ini
+	sed -i -e "s|^fsname=..*$|fsname=${CONFIGS_DIR}/bootloader.fex|g" \
+		-e "s|^root0=..*$|root0=${CONFIGS_DIR}/bootfs|g" ${CONFIGS_DIR}/bootfs.ini
+
 	${BINS}/update_mbr ${CONFIGS_DIR}/sys_config.bin ${CONFIGS_DIR}/mbr.fex 4 16777216
 	${FSBUILD} ${CONFIGS_DIR}/bootfs.ini ${CONFIGS_DIR}/split_xxxx.fex
-	mv bootfs.fex ${CONFIGS_DIR}/bootloader.fex
 
 	# get env.fex
-	${BINS}/u_boot_env_gen ${LIVESUIT_DIR}/default/env.cfg ${CONFIGS_DIR}/env.fex
+	${BINS}/u_boot_env_gen ${LIVESUIT_DIR}/${SOC}/default/env.cfg ${CONFIGS_DIR}/env.fex
 }
 
 make_boot0_boot1()
@@ -73,7 +79,7 @@ make_sys_configs()
 {
 	#busybox unix2dos sys_config1.fex
 	#busybox unix2dos sys_config.fex
-	cp ${LIVESUIT_DIR}/default/sys_config.fex ${CONFIGS_DIR}/sys_config.fex
+	cp ${LIVESUIT_DIR}/${SOC}/default/sys_config.fex ${CONFIGS_DIR}/sys_config.fex
 	${BINS}/script ${CONFIGS_DIR}/sys_config.fex
 
 	cp sunxi-boards/sys_config/${SOC}/${BOARD}.fex ${CONFIGS_DIR}/sys_config1.fex
@@ -88,8 +94,7 @@ make_boot_img()
 		--ramdisk ./linux-sunxi/rootfs/sun4i_rootfs.cpio.gz \
 		--board 'cubieboard' \
 		--base 0x40000000 \
-		-o boot.img
-	mv boot.img ${CONFIGS_DIR}/boot.fex
+		-o ${CONFIGS_DIR}/boot.fex
 }
 
 
@@ -149,8 +154,9 @@ do_pack_linux()
 	make_sys_configs
 	make_boot0_boot1
 	make_bootfs
+	modify_image_cfg
 
-	${DRAGON} ${LIVESUIT_DIR}/image.cfg
+	${DRAGON} ${CONFIGS_DIR}/image.cfg
 
 	if [ -e ${IMG_NAME} ]; then
 		echo '---------' ${IMG_NAME} ' done-------------'
