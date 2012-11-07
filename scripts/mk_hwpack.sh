@@ -27,7 +27,10 @@ cp_debian_files() {
 	cp -r "rootfs/debian-ubuntu"/* "$rootfs/"
 
 	## libs
-	cp -r "$malidir/$libtype/lib"/* "$rootfs/lib/"
+	cp -r "$malidir"/* "$rootfs/lib/"
+	for x in "$malidir/$libtype"/lib/*; do
+		ln -s "${x#$malidir/}" "$rootfs/lib/"
+	done
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
 	## bins
