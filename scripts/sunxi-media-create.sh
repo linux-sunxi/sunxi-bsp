@@ -3,7 +3,7 @@
 
 hwpack_update_only=0
 
-BOOT_SIZE=16
+BOOT_SIZE=64
 
 TEMP="${TMPDIR:-/tmp}/.sunxi-media-create.$$"
 HWPACKDIR="$TEMP/hwpack"
