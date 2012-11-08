@@ -76,15 +76,18 @@ partitionSD () {
 	sudo dd if=/dev/zero of="$dev" bs=1M count=1 ||
 		die "$dev: failed to zero the first MB"
 
-	sudo sfdisk -R "$dev" ||
-		die "$dev: failed to reload media"
+	sudo sfdisk -L -R "$dev" 2> /dev/null
 
-	sudo sfdisk -uM "$dev" <<-EOT
+	sudo sfdisk -L -uM "$dev" <<-EOT
 	1,$BOOT_SIZE,c
-	,,L
+	$(expr 1 + $BOOT_SIZE),,L
 	EOT
 	[ $? -eq 0 ] ||
 		die "$dev: failed to repartition media"
+
+	sleep 1
+	sudo sfdisk -L -R "$dev" ||
+		die "$dev: failed to reload media"
 
 	title "Format Partition 1 to VFAT"
 	sudo mkfs.vfat -I ${subdevice}1 ||
@@ -180,7 +183,8 @@ copyData ()
 	if [ $? -ne 0 ]; then
 		die "Failed to copy rootfs partition data to SD Card"
 	fi 
-        echo "Copy hwpack rootfs files"
+
+	title "Copy hwpack rootfs files"
 	# Fedora uses a softlink for lib.  Adjust, if needed.
 	if [ -L $MNTROOT/lib ]; then
 		# Find where it points.  For Fedora, we expect usr/lib.
