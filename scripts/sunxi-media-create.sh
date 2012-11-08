@@ -3,6 +3,8 @@
 
 hwpack_update_only=0
 
+BOOT_SIZE=16
+
 TEMP="${TMPDIR:-/tmp}/.sunxi-media-create.$$"
 HWPACKDIR="$TEMP/hwpack"
 ROOTFSDIR="$TEMP/rootfs"
@@ -14,7 +16,7 @@ cleanup() {
 	# umount card
 	for x in $MNTBOOT $MNTROOT; do
 		x=$(readlink -f "$x")
-		if grep " $x " /proc/mounts; then
+		if grep -q " $x " /proc/mounts; then
 			sudo umount "$x" || exit 1
 		fi
 	done
@@ -70,23 +72,19 @@ partitionSD () {
 		;;
 	esac
 
-	title "Delete Existing Partition Table"
+	title "Partitioning $dev"
 	sudo dd if=/dev/zero of="$dev" bs=1M count=1 ||
 		die "$dev: failed to zero the first MB"
 
-	title "Creating Partitions"
-	sudo parted "$dev" --script mklabel msdos ||
-		die "$dev: failed to create label"
+	sudo sfdisk -R "$dev" ||
+		die "$dev: failed to reload media"
 
-	title "Partition 1 - ${subdevice}1"
-	sudo parted "$dev" --script mkpart primary fat32 2048s 16MB ||
-		die "${subdevice}1: failed to create partition"
-
-	vfat_end=`sudo fdisk -lu "$dev" | grep "^${subdevice}1" | awk '{ print $3 }' `
-	ext4_offset=`expr $vfat_end + 1`
-	title "Partition 2 (Starts at sector No. $ext4_offset)"
-	sudo parted "$dev" --script mkpart primary ext4 ${ext4_offset}s -- -1 ||
-		die "${subdevice}2: failed to create partition"
+	sudo sfdisk -uM "$dev" <<-EOT
+	1,$BOOT_SIZE,c
+	,,L
+	EOT
+	[ $? -eq 0 ] ||
+		die "$dev: failed to repartition media"
 
 	title "Format Partition 1 to VFAT"
 	sudo mkfs.vfat -I ${subdevice}1 ||
