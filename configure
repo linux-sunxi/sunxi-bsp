@@ -27,11 +27,24 @@ generate_board_mk() {
 	UBOOT_CONFIG=$board
 	EOT
 
-	if [ "$soc" = a10 ]; then
-		echo "KERNEL_CONFIG=sun4i${android:+_crane}_defconfig"
-	else
-		echo "KERNEL_CONFIG=a13${android:+_nuclear}_defconfig"
-	fi
+	case "$soc" in
+	a10)
+		cat <<-EOT
+		MACH=sun4i
+		KERNEL_CONFIG=sun4i${android:+_crane}_defconfig
+		EOT
+		;;
+	a13)
+		cat <<-EOT
+		MACH=sun5i
+		KERNEL_CONFIG=a13${android:+_nuclear}_defconfig
+		EOT
+		;;
+	*)
+		echo "$soc: unsupport SoC" >&2
+		return 1
+		;;
+	esac
 }
 
 usage() {
@@ -47,9 +60,13 @@ if [ $# -eq 0 ]; then
 	usage
 elif ls -1 sunxi-boards/sys_config/*/${1%-android}.fex 2> /dev/null 1>&2; then
 	out=chosen_board.mk
-	generate_board_mk "$1" > $out~
-	mv $out~ $out
-	echo "$1 configured. Now run \`make\`"
+	if generate_board_mk "$1" > $out~; then
+		mv $out~ $out
+		echo "$1 configured. Now run \`make\`"
+	else
+		rm $out~
+		exit 1
+	fi
 else
 	echo "$1: invalid board name" >&2
 	usage
