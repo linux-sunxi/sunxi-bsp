@@ -19,17 +19,22 @@ ABI=armhf
 MALI=r3p0
 
 cp_debian_files() {
-	local rootfs="$1" malidir="mali-libs/$MALI/$ABI"
+	local rootfs="$1" malidir="mali-libs/lib/$MALI/$ABI"
 	local cedarxdir="cedarx-libs/libcedarv/linux-$ABI"
 	local libtype="x11" # or framebuffer
+	local x= y=
 
 	echo "Debian/Ubuntu hwpack"
 	cp -r "rootfs/debian-ubuntu"/* "$rootfs/"
 
 	## libs
-	cp -r "$malidir"/* "$rootfs/lib/"
-	for x in "$malidir/$libtype"/lib/*; do
-		ln -s "${x#$malidir/}" "$rootfs/lib/"
+	for x in x11 framebuffer; do
+		mkdir -p "$rootfs/lib/$x"
+		for y in "$malidir/$x/"*.so*; do
+			cp -a "$y" "$rootfs/lib/$x/"
+			[ $x != $libtype ] ||
+				ln -snf "${y#$malidir/}" "$rootfs/lib/"
+		done
 	done
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
