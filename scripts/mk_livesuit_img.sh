@@ -22,16 +22,9 @@ modify_image_cfg()
 	echo "Modifying image.cfg"
 	cp -rf ${SOURCE_DIR}/default/image.cfg ${BUILD_DIR}
 	sed -i -e "s|^INPUT_DIR..*$|INPUT_DIR=${BUILD_DIR}|g" \
-		-e "s|^EFEX_DIR..*$|EFEX_DIR=${SOURCE_DIR}/eFex|g" ${BUILD_DIR}/image.cfg
-#    sed -i 's/imagename/;imagename/g' image.cfg
-
-#    if [ $PACK_DEBUG = card0 ]; then
-#        IMG_NAME="${PACK_CHIP}_${PACK_PLATFORM}_${PACK_BOARD}_$PACK_DEBUG.img"
-#    else
-#        IMG_NAME="${PACK_CHIP}_${PACK_PLATFORM}_${PACK_BOARD}.img"
-#    fi
-#    echo "imagename = $IMG_NAME" >> image.cfg
-#    echo "" >> image.cfg
+		-e "s|^EFEX_DIR..*$|EFEX_DIR=${SOURCE_DIR}/eFex|g" \
+		-e "s|^imagename..*$|imagename=output/${BOARD}_livesuit.img|g" \
+		${BUILD_DIR}/image.cfg
 }
 
 
@@ -96,7 +89,7 @@ make_boot_img()
 	echo "Make android boot image"
 	${BINS}/mkbootimg --kernel ./build/${KERNEL_CONFIG}-linux/bImage \
 		--ramdisk ./linux-sunxi/rootfs/sun4i_rootfs.cpio.gz \
-		--board 'cubieboard' \
+		--board ${BOARD} \
 		--base 0x40000000 \
 		-o ${BUILD_DIR}/boot.fex
 }
@@ -162,12 +155,13 @@ do_pack_linux()
 	make_boot_img
 	modify_image_cfg
 
+	echo "Generating image"
 	${DRAGON} ${BUILD_DIR}/image.cfg
 }
 
-
-#make_rootfs "$1"
-#make_boot_img
+if [ -n "$1" ]; then
+	make_rootfs "$1"
+fi
 do_pack_linux
 
 
