@@ -99,12 +99,14 @@ make_rootfs()
 {
 	echo "Make rootfs"
 	local f=$(readlink -f "$1")
+	local fsizeinbytes=$(gzip -lq "$f" | awk -F" " '{print $2}')
+	local fsizeMB=$(expr $fsizeinbytes / 1024 / 1024 + 200)
 	local target=$PWD"/target_tmp"
 
-	echo "Make linux.ext4"
+	echo "Make linux.ext4 (size="$fsizeMB")"
 	mkdir -p $target
 	rm -f linux.ext4
-	dd if=/dev/zero of=linux.ext4 bs=1M count=1024
+	dd if=/dev/zero of=linux.ext4 bs=1M count="$fsizeMB"
 	mkfs.ext4 linux.ext4
 	sudo mount linux.ext4 $target -o loop=/dev/loop0
 
