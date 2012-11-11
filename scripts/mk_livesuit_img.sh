@@ -99,7 +99,6 @@ make_rootfs()
 {
 	echo "Make rootfs"
 	local f=$(readlink -f "$1")
-	local source=$PWD"/source_tmp"
 	local target=$PWD"/target_tmp"
 
 	echo "Make linux.ext4"
@@ -109,23 +108,23 @@ make_rootfs()
 	mkfs.ext4 linux.ext4
 	sudo mount linux.ext4 $target -o loop=/dev/loop0
 
-	mkdir -p $source
-	cd $source
+	cd $target
 	sudo tar xzf "$f"
-	if [ -d $source/etc ]; then
+	if [ -d ./etc ]; then
 		echo "Standard rootfs"
-		sudo cp -a $source/* $target
-	elif [ -d $source/binary/boot/filesystem.dir ]; then
+		# do nothing
+	elif [ -d ./binary/boot/filesystem.dir ]; then
 		echo "Linaro rootfs"
-		sudo cp -a $source/binary/boot/filesystem.dir/* $target
+		sudo mv ./binary/boot/filesystem.dir/* .
+		sudo rm -rf ./binary
 	else
 		die "Unsupported rootfs"
 	fi
-	
 	cd - > /dev/null
+
 	sudo umount $target
-	sudo sudo rm -rf $source
 	sudo sudo rm -rf $target
+
 	mv linux.ext4 ${BUILD_DIR}/rootfs.fex
 }
 
