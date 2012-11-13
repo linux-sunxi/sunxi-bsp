@@ -63,6 +63,7 @@ umountSD () {
 
 partitionSD () {
 	local dev="$1" subdevice=
+	local x=
 	case "$dev" in
 	*/mmcblk*|*/loop*)
 		subdevice="${1}p"
@@ -76,11 +77,10 @@ partitionSD () {
 	sudo dd if=/dev/zero of="$dev" bs=1M count=1 ||
 		die "$dev: failed to zero the first MB"
 
-	sudo sfdisk -L -R "$dev" 2> /dev/null
-
-	sudo sfdisk -L -uM "$dev" <<-EOT
-	1,$BOOT_SIZE,c
-	$(expr 1 + $BOOT_SIZE),,L
+	x=$(expr $BOOT_SIZE \* 2048)
+	sudo sfdisk -L -uS "$dev" <<-EOT
+	2048,$x,c
+	$(expr 2048 + $x),,L
 	EOT
 	[ $? -eq 0 ] ||
 		die "$dev: failed to repartition media"
