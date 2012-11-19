@@ -15,6 +15,7 @@ BINS=${PWD}/allwinner-tools/bins
 LIVESUIT_DIR=${PWD}/allwinner-tools/livesuit
 SOURCE_DIR=${LIVESUIT_DIR}/${SOC}
 BUILD_DIR=${PWD}/build/${BOARD}_livesuit
+BUILD_DIR_LOCAL=build/${BOARD}_livesuit
 SUNXI_TOOLS=${PWD}/sunxi-tools
 
 modify_image_cfg()
@@ -67,8 +68,8 @@ make_boot0_boot1()
 	cp -rf ${SOURCE_DIR}/eGon/storage_media/sdcard/boot0.bin ${BUILD_DIR}/card_boot0.fex
 	cp -rf ${SOURCE_DIR}/eGon/storage_media/sdcard/boot1.bin ${BUILD_DIR}/card_boot1.fex
 
-	${BINS}/update_23 ${BUILD_DIR}/sys_config1.bin ${BUILD_DIR}/boot0.bin ${BUILD_DIR}/boot1.bin
-	${BINS}/update_23 ${BUILD_DIR}/sys_config1.bin ${BUILD_DIR}/card_boot0.fex ${BUILD_DIR}/card_boot1.fex SDMMC_CARD
+	${BINS}/update_23 ${BUILD_DIR_LOCAL}/sys_config1.bin ${BUILD_DIR_LOCAL}/boot0.bin ${BUILD_DIR_LOCAL}/boot1.bin
+	${BINS}/update_23 ${BUILD_DIR_LOCAL}/sys_config1.bin ${BUILD_DIR_LOCAL}/card_boot0.fex ${BUILD_DIR_LOCAL}/card_boot1.fex SDMMC_CARD
 }
 
 make_sys_configs()
@@ -161,8 +162,10 @@ do_pack_linux()
 }
 
 if [ -n "$1" ]; then
+	mkdir -p ${BUILD_DIR}
 	make_rootfs "$1"
 fi
 do_pack_linux
+
 
 
