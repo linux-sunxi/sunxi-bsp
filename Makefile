@@ -87,3 +87,18 @@ update:
 %/.git:
 	$(Q)git submodule init
 	$(Q)git submodule update $*
+
+help:
+	@echo ""
+	@echo "Usage:"
+	@echo "  make hwpack          - Default 'make'"
+	@echo "  make hwpack-install  - Builds and installs hwpack and optinal rootfs to sdcard"
+	@echo "   Arguments:"
+	@echo "    SD_CARD=           - Target  (ie. /dev/sdx)"
+	@echo "    ROOTFS=            - Source rootfs (ie. rootfs.tar.gz)"
+	@echo ""
+	@echo "  make android         - **Experimental**"
+	@echo "  make clean"
+	@echo "  make update"
+	@echo ""
+
