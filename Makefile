@@ -77,8 +77,12 @@ endif
 libs: mali-libs/.git cedarx-libs/.git
 
 update:
-	$(Q)git submodule init
-	$(Q)git submodule -q foreach git pull --rebase origin HEAD
+	$(Q)git submodule -q init 
+	$(Q)git submodule -q foreach git stash save -q --include-untracked "make update stash"
+	-$(Q)git submodule -q foreach git fetch -q
+	-$(Q)git submodule -q foreach git rebase HEAD
+	-$(Q)git submodule -q foreach "git stash pop -q || :"
+	$(Q)git submodule status
 
 %/.git:
 	$(Q)git submodule init
