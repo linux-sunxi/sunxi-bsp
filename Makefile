@@ -45,6 +45,9 @@ linux: $(K_DOT_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
 	cd $(K_O_PATH) && ${CROSS_COMPILE}objcopy -R .note.gnu.build-id -S -O binary vmlinux bImage
 
+linux-config:
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm menuconfig
+
 ## script.bin
 script.bin: tools
 	$(Q)mkdir -p $(OUTPUT_DIR)
