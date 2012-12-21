@@ -1,5 +1,6 @@
 .PHONY: all clean help
 .PHONY: tools u-boot linux libs hwpack hwpack-install
+.PHONY: linux-config
 
 CROSS_COMPILE=arm-linux-gnueabihf-
 OUTPUT_DIR=$(PWD)/output
@@ -45,7 +46,7 @@ linux: $(K_DOT_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
 	cd $(K_O_PATH) && ${CROSS_COMPILE}objcopy -R .note.gnu.build-id -S -O binary vmlinux bImage
 
-linux-config:
+linux-config: linux-sunxi/.git
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm menuconfig
 
 ## script.bin
@@ -80,11 +81,14 @@ endif
 libs: mali-libs/.git cedarx-libs/.git
 
 update:
+	$(Q)git stash
+	$(Q)git pull --rebase
 	$(Q)git submodule -q init 
 	$(Q)git submodule -q foreach git stash save -q --include-untracked "make update stash"
 	-$(Q)git submodule -q foreach git fetch -q
-	-$(Q)git submodule -q foreach git rebase HEAD
+	-$(Q)git submodule -q foreach "git rebase origin HEAD || :"
 	-$(Q)git submodule -q foreach "git stash pop -q || :"
+	-$(Q)git stash pop -q
 	$(Q)git submodule status
 
 %/.git:
@@ -95,13 +99,20 @@ help:
 	@echo ""
 	@echo "Usage:"
 	@echo "  make hwpack          - Default 'make'"
-	@echo "  make hwpack-install  - Builds and installs hwpack and optinal rootfs to sdcard"
+	@echo "  make hwpack-install  - Builds and installs hwpack and optional rootfs to sdcard"
 	@echo "   Arguments:"
 	@echo "    SD_CARD=           - Target  (ie. /dev/sdx)"
 	@echo "    ROOTFS=            - Source rootfs (ie. rootfs.tar.gz)"
 	@echo ""
 	@echo "  make android         - **Experimental**"
+	@echo "  make livesuit        - ** To be done **"
 	@echo "  make clean"
 	@echo "  make update"
+	@echo ""
+	@echo "Optional targets:"
+	@echo "  make linux           - Builds linux kernel"
+	@echo "  make linux-config    - Menuconfig"
+	@echo "  make u-boot          - Builds u-boot"
+	@echo "  make libs            - Download libs"
 	@echo ""
 
