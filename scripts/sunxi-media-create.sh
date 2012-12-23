@@ -125,12 +125,12 @@ extract() {
 }
 
 copyUbootSpl ()
-{	
+{
 	sudo dd if=$2 bs=1024 of=$1 seek=8
 }
 
 copyUboot ()
-{	
+{
 	sudo dd if=$2 bs=1024 of=$1 seek=32
 }
 
@@ -156,21 +156,21 @@ mountPartitions ()
 		die "Failed to mount EXT4 partition (SD)"
 }
 
-copyData () 
+copyData ()
 {
 	echo "Copy VFAT partition files to SD Card"
 	sudo cp $HWPACKDIR/kernel/uImage $MNTBOOT ||
 		die "Failed to copy VFAT partition data to SD Card"
 	sudo cp $HWPACKDIR/kernel/*.bin $MNTBOOT/script.bin ||
 		die "Failed to copy VFAT partition data to SD Card"
-	if [ -s $HWPACKDIR/kernel/*.scr ]; then 
+	if [ -s $HWPACKDIR/kernel/*.scr ]; then
 		sudo cp $HWPACKDIR/kernel/*.scr $MNTBOOT/boot.scr ||
 			die "Failed to copy VFAT partition data to SD Card"
 	fi
-	 
-        if [ ${hwpack_update_only} -eq 0 ]; then 
+
+        if [ ${hwpack_update_only} -eq 0 ]; then
 	    title "Copy rootfs partition files to SD Card"
-            if [ -d $ROOTFSDIR/etc ]; then
+            if [ -d $ROOTFSDIR/sbin ]; then
                echo "Standard rootfs"
 	       sudo cp -a $ROOTFSDIR/* $MNTROOT
             elif [ -d $ROOTFSDIR/binary/boot/filesystem.dir ]; then
@@ -182,7 +182,7 @@ copyData ()
         fi
 	if [ $? -ne 0 ]; then
 		die "Failed to copy rootfs partition data to SD Card"
-	fi 
+	fi
 
 	title "Copy hwpack rootfs files"
 	# Fedora uses a softlink for lib.  Adjust, if needed.
@@ -200,12 +200,12 @@ copyData ()
 # "main"
 checkSyntax $1 $2 $3
 umountSD $1
-if [ ${hwpack_update_only} -eq 0 ]; then 
+if [ ${hwpack_update_only} -eq 0 ]; then
     partitionSD $1 
 fi
 
 extract $2 $HWPACKDIR/ "HW Pack"
-if [ ${hwpack_update_only} -eq 0 ]; then 
+if [ ${hwpack_update_only} -eq 0 ]; then
     extract $3 $ROOTFSDIR/ "RootFS"
 fi
 
