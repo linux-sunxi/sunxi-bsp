@@ -32,12 +32,8 @@ show_usage_and_die()
 
 modify_image_cfg()
 {
-	echo "Modifying image.cfg"
-	if [ $ANDROID = true ]; then
-		cp -rf ${SOURCE_DIR}/default/image_android.cfg ${BUILD_DIR}/image.cfg
-	else
-		cp -rf ${SOURCE_DIR}/default/image_linux.cfg ${BUILD_DIR}/image.cfg
-	fi
+	echo "Modifying image.cfg: $1"
+	cp -rf $1 ${BUILD_DIR}/image.cfg
 	sed -i -e "s|^INPUT_DIR..*$|INPUT_DIR=${BUILD_DIR}|g" \
 		-e "s|^EFEX_DIR..*$|EFEX_DIR=${SOURCE_DIR}/eFex|g" \
 		-e "s|^imagename..*$|imagename=output/${BOARD}_livesuit.img|g" \
@@ -99,14 +95,10 @@ make_boot0_boot1()
 
 make_sys_configs()
 {
-	echo "Make sys configs"
+	echo "Make sys configs: $1"
 	#busybox unix2dos sys_config1.fex
 	#busybox unix2dos sys_config.fex
-	if [ $ANDROID = true ]; then
-		cp ${SOURCE_DIR}/default/sys_config_android.fex ${BUILD_DIR}/sys_config.fex
-	else
-		cp ${SOURCE_DIR}/default/sys_config_linux.fex ${BUILD_DIR}/sys_config.fex
-	fi
+	cp $1 ${BUILD_DIR}/sys_config.fex
 	${BINS}/script ${BUILD_DIR}/sys_config.fex
 
 	cp sunxi-boards/sys_config/${SOC}/${BOARD}.fex ${BUILD_DIR}/sys_config1.fex
@@ -132,9 +124,9 @@ cp_android_files()
 
 }
 
-do_pack_linux()
+do_pack()
 {
-    echo "!!!Packing for linux!!!\n"
+	echo "!!!Packing!!!\n"
 
 #    if [ $PACK_CHIP = sun4i ]; then
 #	if [ $PACK_DEBUG = card0 ]; then
@@ -152,29 +144,36 @@ do_pack_linux()
 #	fi
 #    fi
 	mkdir -p ${BUILD_DIR}
-	make_sys_configs
-	make_boot0_boot1
-	make_bootfs
-	make_boot_img
-	modify_image_cfg
 	if [ $ANDROID = true ]; then
+		make_sys_configs ${SOURCE_DIR}/default/sys_config_android.fex
+		make_boot0_boot1
+		make_bootfs
+		make_boot_img
+		modify_image_cfg ${SOURCE_DIR}/default/image_android.cfg
 		cp_android_files
 		do_addchecksum
+	else
+		make_sys_configs ${SOURCE_DIR}/default/sys_config_linux.fex
+		make_boot0_boot1
+		make_bootfs
+		make_boot_img
+		modify_image_cfg ${SOURCE_DIR}/default/image_linux.cfg
 	fi
 
 	echo "Generating image"
 	${DRAGON} ${BUILD_DIR}/image.cfg
+	echo "Done"
 }
 
 while getopts R:r:b:s: opt; do
-    case "$opt" in
-	R)	ROOTFS="$OPTARG"; ANDROID=false ;;
-	r)	RECOVERY="$OPTARG" ;;
-	b)	BOOT="$OPTARG" ;;
-	s)	SYSTEM="$OPTARG" ;;
-	:) show_usage_and_die ;;
-	*) show_usage_and_die ;;
-    esac
+	case "$opt" in
+		R) ROOTFS="$OPTARG"; ANDROID=false ;;
+		r) RECOVERY="$OPTARG" ;;
+		b) BOOT="$OPTARG" ;;
+		s) SYSTEM="$OPTARG" ;;
+		:) show_usage_and_die ;;
+		*) show_usage_and_die ;;
+	esac
 done
 
 if [ $ANDROID = true ]; then
@@ -185,7 +184,7 @@ else
 	[ -e "$ROOTFS" ] || show_usage_and_die
 fi
 
-do_pack_linux
+do_pack
 
 
 
