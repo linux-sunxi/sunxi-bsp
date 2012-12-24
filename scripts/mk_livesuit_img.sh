@@ -5,7 +5,7 @@ die() {
 
 [ -s "./chosen_board.mk" ] || die "please run ./configure first."
 
-#set -e
+set -e
 
 . ./chosen_board.mk
 
@@ -17,11 +17,27 @@ SOURCE_DIR=${LIVESUIT_DIR}/${SOC}
 BUILD_DIR=${PWD}/build/${BOARD}_livesuit
 BUILD_DIR_LOCAL=build/${BOARD}_livesuit
 SUNXI_TOOLS=${PWD}/sunxi-tools
+ROOTFS=
+RECOVERY=
+BOOT=
+SYSTEM=
+ANDROID=true
+
+show_usage_and_die()
+{
+	echo "Usage (linux): $0 -R [rootfs.tar.gz]"
+	echo "Usage (android): $0 -b [boot.img] -s [system.img] -r [recovery.img]"
+	exit 1
+}
 
 modify_image_cfg()
 {
 	echo "Modifying image.cfg"
-	cp -rf ${SOURCE_DIR}/default/image.cfg ${BUILD_DIR}
+	if [ $ANDROID = true ]; then
+		cp -rf ${SOURCE_DIR}/default/image_android.cfg ${BUILD_DIR}/image.cfg
+	else
+		cp -rf ${SOURCE_DIR}/default/image_linux.cfg ${BUILD_DIR}/image.cfg
+	fi
 	sed -i -e "s|^INPUT_DIR..*$|INPUT_DIR=${BUILD_DIR}|g" \
 		-e "s|^EFEX_DIR..*$|EFEX_DIR=${SOURCE_DIR}/eFex|g" \
 		-e "s|^imagename..*$|imagename=output/${BOARD}_livesuit.img|g" \
@@ -53,11 +69,20 @@ make_bootfs()
 	sed -i -e "s|^fsname=..*$|fsname=${BUILD_DIR}/bootloader.fex|g" \
 		-e "s|^root0=..*$|root0=${BUILD_DIR}/bootfs|g" ${BUILD_DIR}/bootfs.ini
 
-	${BINS}/update_mbr ${BUILD_DIR}/sys_config.bin ${BUILD_DIR}/mbr.fex 4 16777216
-	${FSBUILD} ${BUILD_DIR}/bootfs.ini ${BUILD_DIR}/split_xxxx.fex
-
 	# get env.fex
 	${BINS}/u_boot_env_gen ${SOURCE_DIR}/default/env.cfg ${BUILD_DIR}/env.fex
+
+	# u-boot
+	${SUNXI_TOOLS}/fex2bin ${BUILD_DIR}/sys_config1.fex > ${BUILD_DIR}/bootfs/script0.bin
+	${SUNXI_TOOLS}/fex2bin ${BUILD_DIR}/sys_config1.fex > ${BUILD_DIR}/bootfs/script.bin
+
+	# other
+	mkdir -pv ${BUILD_DIR}/bootfs/vendor/system/media
+	echo "empty" > ${BUILD_DIR}/bootfs/vendor/system/media/vendor
+
+	# build
+	${BINS}/update_mbr ${BUILD_DIR}/sys_config.bin ${BUILD_DIR}/mbr.fex 4 16777216
+	${FSBUILD} ${BUILD_DIR}/bootfs.ini ${BUILD_DIR}/split_xxxx.fex
 }
 
 make_boot0_boot1()
@@ -77,7 +102,11 @@ make_sys_configs()
 	echo "Make sys configs"
 	#busybox unix2dos sys_config1.fex
 	#busybox unix2dos sys_config.fex
-	cp ${SOURCE_DIR}/default/sys_config.fex ${BUILD_DIR}/sys_config.fex
+	if [ $ANDROID = true ]; then
+		cp ${SOURCE_DIR}/default/sys_config_android.fex ${BUILD_DIR}/sys_config.fex
+	else
+		cp ${SOURCE_DIR}/default/sys_config_linux.fex ${BUILD_DIR}/sys_config.fex
+	fi
 	${BINS}/script ${BUILD_DIR}/sys_config.fex
 
 	cp sunxi-boards/sys_config/${SOC}/${BOARD}.fex ${BUILD_DIR}/sys_config1.fex
@@ -128,10 +157,33 @@ do_pack_linux()
 	make_bootfs
 	make_boot_img
 	modify_image_cfg
+	if [ $ANDROID = true ]; then
+		cp_android_files
+		do_addchecksum
+	fi
 
 	echo "Generating image"
 	${DRAGON} ${BUILD_DIR}/image.cfg
 }
+
+while getopts R:r:b:s: opt; do
+    case "$opt" in
+	R)	ROOTFS="$OPTARG"; ANDROID=false ;;
+	r)	RECOVERY="$OPTARG" ;;
+	b)	BOOT="$OPTARG" ;;
+	s)	SYSTEM="$OPTARG" ;;
+	:) show_usage_and_die ;;
+	*) show_usage_and_die ;;
+    esac
+done
+
+if [ $ANDROID = true ]; then
+	[ -e "$RECOVERY" ] || show_usage_and_die
+	[ -e "$BOOT" ] || show_usage_and_die
+	[ -e "$SYSTEM" ] || show_usage_and_die
+else
+	[ -e "$ROOTFS" ] || show_usage_and_die
+fi
 
 do_pack_linux
 
