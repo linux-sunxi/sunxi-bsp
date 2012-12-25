@@ -55,7 +55,7 @@ do_addchecksum()
 
 make_bootfs()
 {
-	echo "Make bootfs"
+	echo "Make bootfs: $1"
 	cp -rf ${SOURCE_DIR}/eFex/split_xxxx.fex  ${BUILD_DIR}
  	cp -rf ${SOURCE_DIR}/eFex/card/mbr.fex  ${BUILD_DIR}
 	cp -rf ${SOURCE_DIR}/wboot/bootfs ${BUILD_DIR}
@@ -66,7 +66,7 @@ make_bootfs()
 		-e "s|^root0=..*$|root0=${BUILD_DIR}/bootfs|g" ${BUILD_DIR}/bootfs.ini
 
 	# get env.fex
-	${BINS}/u_boot_env_gen ${SOURCE_DIR}/default/env.cfg ${BUILD_DIR}/env.fex
+	${BINS}/u_boot_env_gen $1 ${BUILD_DIR}/env.fex
 
 	# u-boot
 	${SUNXI_TOOLS}/fex2bin ${BUILD_DIR}/sys_config1.fex > ${BUILD_DIR}/bootfs/script0.bin
@@ -147,7 +147,7 @@ do_pack()
 	if [ $ANDROID = true ]; then
 		make_sys_configs ${SOURCE_DIR}/default/sys_config_android.fex
 		make_boot0_boot1
-		make_bootfs
+		make_bootfs ${SOURCE_DIR}/default/env_android.cfg
 		make_boot_img
 		modify_image_cfg ${SOURCE_DIR}/default/image_android.cfg
 		cp_android_files
@@ -155,7 +155,7 @@ do_pack()
 	else
 		make_sys_configs ${SOURCE_DIR}/default/sys_config_linux.fex
 		make_boot0_boot1
-		make_bootfs
+		make_bootfs ${SOURCE_DIR}/default/env_linux.cfg
 		make_boot_img
 		cp "$ROOTFS" ${BUILD_DIR}/rootfs.fex
 		modify_image_cfg ${SOURCE_DIR}/default/image_linux.cfg
@@ -168,10 +168,10 @@ do_pack()
 
 while getopts R:r:b:s: opt; do
 	case "$opt" in
-		R) ROOTFS="$OPTARG"; ANDROID=false ;;
-		r) RECOVERY="$OPTARG" ;;
-		b) BOOT="$OPTARG" ;;
-		s) SYSTEM="$OPTARG" ;;
+		R) ROOTFS=$(readlink -f "$OPTARG"); ANDROID=false ;;
+		r) RECOVERY=$(readlink -f "$OPTARG") ;;
+		b) BOOT=$(readlink -f "$OPTARG") ;;
+		s) SYSTEM=$(readlink -f "$OPTARG") ;;
 		:) show_usage_and_die ;;
 		*) show_usage_and_die ;;
 	esac
