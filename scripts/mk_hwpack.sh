@@ -38,13 +38,18 @@ cp_debian_files() {
 	done
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
+	## kernel modules
+	cp -r "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
+	rm -f "$rootfs/lib/modules"/*/source
+	rm -f "$rootfs/lib/modules"/*/build
+
 	## bins
 	#cp ../../a10-tools/a1x-initramfs.sh ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin
 	#chmod 755 ${OUTPUT_DIR}/${BOARD}_hwpack/rootfs/usr/bin/a1x-initramfs.sh
 }
 
 cp_android_files() {
-	local rootfs="$1" malidir="mali-libs/$MALI/armel/android"
+	local rootfs="$1" malidir="mali-libs/lib/$MALI/$ABI"
 
 	echo "Android hwpack"
 
@@ -52,6 +57,18 @@ cp_android_files() {
 	mkdir -p "${rootfs}/bin-backup"
 	cp -r "$malidir"/* "$rootfs/"
 	cp -r "$malidir"/* "$rootfs/bin-backup/"
+
+	mkdir -p "${rootfs}/boot"
+	## kernel
+	cp -r "$K_O_PATH"/arch/arm/boot/uImage "${rootfs}/boot/"
+	cp -r "build/$BOARD.bin" "${rootfs}/boot/script.bin"
+
+	## kernel modules
+	mkdir -p "$rootfs/system/lib/modules"
+	find "$K_O_PATH/output/lib/modules" -name "*.ko"  -print0 |xargs -0 cp -t "$rootfs/system/lib/modules/"
+
+	## boot.scr
+	cp "build/boot.scr" "${rootfs}/boot/boot.scr"
 }
 
 create_hwpack() {
@@ -77,11 +94,6 @@ create_hwpack() {
 
 	## boot.scr (optional)
 	cp "build/boot.scr" "$kerneldir/boot.scr" || true
-
-	## kernel modules
-	cp -r "$K_O_PATH/output/lib/modules" "$rootfs/lib/"
-	rm -f "$rootfs/lib/modules"/*/source
-	rm -f "$rootfs/lib/modules"/*/build
 
 	## bootloader
 	mkdir -p "$bootloader"
