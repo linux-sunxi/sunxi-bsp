@@ -157,6 +157,7 @@ do_pack()
 		make_boot0_boot1
 		make_bootfs
 		make_boot_img
+		cp "$ROOTFS" ${BUILD_DIR}/rootfs.fex
 		modify_image_cfg ${SOURCE_DIR}/default/image_linux.cfg
 	fi
 
