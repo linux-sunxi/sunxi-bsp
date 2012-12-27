@@ -21,7 +21,6 @@ make_rootfs()
 	rm -f linux.ext4
 	dd if=/dev/zero of=linux.ext4 bs=1M count="$fsizeMB"
 	mkfs.ext4 linux.ext4
-	sudo umount $target
 	sudo mount linux.ext4 $target -o loop=/dev/loop0
 
 	cd $target
