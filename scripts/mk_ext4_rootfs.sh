@@ -10,8 +10,9 @@ set -e
 make_rootfs()
 {
 	echo "Make rootfs"
-	local f=$(readlink -f "$1")
-	local fsizeinbytes=$(gzip -lq "$f" | awk -F" " '{print $2}')
+	local rootfs=$(readlink -f "$1")
+	local output=$(readlink -f "$2")
+	local fsizeinbytes=$(gzip -lq "$rootfs" | awk -F" " '{print $2}')
 	local fsizeMB=$(expr $fsizeinbytes / 1024 / 1024 + 200)
 	local target=$PWD"/target_tmp"
 
@@ -20,10 +21,12 @@ make_rootfs()
 	rm -f linux.ext4
 	dd if=/dev/zero of=linux.ext4 bs=1M count="$fsizeMB"
 	mkfs.ext4 linux.ext4
+	sudo umount $target
 	sudo mount linux.ext4 $target -o loop=/dev/loop0
 
 	cd $target
-	sudo tar xzf "$f"
+	echo "Unpacking $rootfs"
+	sudo tar xzf $rootfs
 	if [ -d ./etc ]; then
 		echo "Standard rootfs"
 		# do nothing
@@ -39,7 +42,7 @@ make_rootfs()
 	sudo umount $target
 	sudo sudo rm -rf $target
 
-	mv linux.ext4 "$2"
+	mv linux.ext4 $output
 }
 
 [ $# -eq 2 ] || die "Usage: $0 [rootfs.tar.gz] [output]"
