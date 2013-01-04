@@ -78,9 +78,9 @@ partitionSD () {
 		die "$dev: failed to zero the first MB"
 
 	x=$(expr $BOOT_SIZE \* 2048)
-	sudo sfdisk -L -uS "$dev" <<-EOT
+	sudo sfdisk --in-order -L -uS "$dev" <<-EOT
 	2048,$x,c
-	$(expr 2048 + $x),,L
+	,,L
 	EOT
 	[ $? -eq 0 ] ||
 		die "$dev: failed to repartition media"
