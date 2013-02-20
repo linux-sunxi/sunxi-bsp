@@ -3,8 +3,8 @@
 .PHONY: linux-config
 
 CROSS_COMPILE=arm-linux-gnueabihf-
-OUTPUT_DIR=$(PWD)/output
-BUILD_PATH=$(PWD)/build
+OUTPUT_DIR=$(CURDIR)/output
+BUILD_PATH=$(CURDIR)/build
 ROOTFS?=norootfs
 Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
