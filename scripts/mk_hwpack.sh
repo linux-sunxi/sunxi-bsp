@@ -93,7 +93,7 @@ create_hwpack() {
 	cp -r "build/$BOARD.bin" "$kerneldir/script.bin"
 
 	## boot.scr (optional)
-	cp "build/boot.scr" "$kerneldir/boot.scr" || true
+	[ ! -s "build/boot.scr" ] || cp "build/boot.scr" "$kerneldir/boot.scr"
 
 	## bootloader
 	mkdir -p "$bootloader"
