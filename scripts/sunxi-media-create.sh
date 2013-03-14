@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage ./makeSD.sh /dev/sdx hwpack rootfs
+# Usage ./sunxi-media-create.sh /dev/sdx hwpack rootfs
 
 hwpack_update_only=0
 
