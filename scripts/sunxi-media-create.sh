@@ -174,8 +174,11 @@ copyData ()
                echo "Standard rootfs"
 	       sudo cp -a $ROOTFSDIR/* $MNTROOT
             elif [ -d $ROOTFSDIR/binary/boot/filesystem.dir ]; then
-               echo "Linaro rootfs"
+               echo "Old Linaro rootfs"
 	       sudo cp -a $ROOTFSDIR/binary/boot/filesystem.dir/* $MNTROOT
+            elif [ -d $ROOTFSDIR/binary/sbin ]; then
+               echo "New Linaro rootfs"
+	       sudo cp -a $ROOTFSDIR/binary/* $MNTROOT
             else
                die "Unsupported rootfs"
             fi
