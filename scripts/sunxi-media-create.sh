@@ -158,6 +158,9 @@ mountPartitions ()
 
 copyData ()
 {
+	local d= x=
+	local rootfs_copied=
+
 	echo "Copy VFAT partition files to SD Card"
 	sudo cp $HWPACKDIR/kernel/uImage $MNTBOOT ||
 		die "Failed to copy VFAT partition data to SD Card"
@@ -169,23 +172,22 @@ copyData ()
 	fi
 
         if [ ${hwpack_update_only} -eq 0 ]; then
-	    title "Copy rootfs partition files to SD Card"
-            if [ -d $ROOTFSDIR/sbin ]; then
-               echo "Standard rootfs"
-	       sudo cp -a $ROOTFSDIR/* $MNTROOT
-            elif [ -d $ROOTFSDIR/binary/boot/filesystem.dir ]; then
-               echo "Old Linaro rootfs"
-	       sudo cp -a $ROOTFSDIR/binary/boot/filesystem.dir/* $MNTROOT
-            elif [ -d $ROOTFSDIR/binary/sbin ]; then
-               echo "New Linaro rootfs"
-	       sudo cp -a $ROOTFSDIR/binary/* $MNTROOT
-            else
-               die "Unsupported rootfs"
-            fi
+		title "Copy rootfs partition files to SD Card"
+		for x in '' \
+			'binary/boot/filesystem.dir' 'binary'; do
+
+			d="$ROOTFSDIR${x:+/$x}"
+
+			if [ -d "$d/sbin" ]; then
+				rootfs_copied=1
+				sudo cp -a "$d"/* "$MNTROOT" ||
+					die "Failed to copy rootfs partition data to SD Card"
+				break
+			fi
+		done
+
+		[ -n "$rootfs_copied" ] || die "Unsupported rootfs"
         fi
-	if [ $? -ne 0 ]; then
-		die "Failed to copy rootfs partition data to SD Card"
-	fi
 
 	title "Copy hwpack rootfs files"
 	# Fedora uses a softlink for lib.  Adjust, if needed.
