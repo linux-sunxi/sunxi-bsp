@@ -16,10 +16,9 @@ K_O_PATH="build/$KERNEL_CONFIG-linux"
 HWPACK_DIR="build/${BOARD}_hwpack"
 
 ABI=armhf
-MALI=r3p0
 
 cp_debian_files() {
-	local rootfs="$1" malidir="mali-libs/lib/$MALI/$ABI"
+	local rootfs="$1"
 	local cedarxdir="cedarx-libs/libcedarv/linux-$ABI"
 	local libtype="x11" # or framebuffer
 	local x= y=
@@ -28,14 +27,6 @@ cp_debian_files() {
 	cp -r "rootfs/debian-ubuntu"/* "$rootfs/"
 
 	## libs
-	for x in x11 framebuffer; do
-		mkdir -p "$rootfs/lib/$x"
-		for y in "$malidir/$x/"*.so*; do
-			cp -a "$y" "$rootfs/lib/$x/"
-			[ $x != $libtype ] ||
-				ln -snf "${y#$malidir/}" "$rootfs/lib/"
-		done
-	done
 	install -m 0755 $(find "$cedarxdir" -name '*.so') "$rootfs/lib/"
 
 	## kernel modules
@@ -49,14 +40,9 @@ cp_debian_files() {
 }
 
 cp_android_files() {
-	local rootfs="$1" malidir="mali-libs/lib/$MALI/$ABI"
+	local rootfs="$1"
 
 	echo "Android hwpack"
-
-	## libs
-	mkdir -p "${rootfs}/bin-backup"
-	cp -r "$malidir"/* "$rootfs/"
-	cp -r "$malidir"/* "$rootfs/bin-backup/"
 
 	mkdir -p "${rootfs}/boot"
 	## kernel

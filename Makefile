@@ -79,7 +79,7 @@ else
 	$(Q)$(SUDO) scripts/sunxi-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
 endif
 
-libs: mali-libs/.git cedarx-libs/.git
+libs: cedarx-libs/.git
 
 update:
 	$(Q)git stash
