@@ -2,6 +2,7 @@
 .PHONY: tools u-boot linux libs hwpack hwpack-install
 .PHONY: linux-config
 
+SUDO=sudo
 CROSS_COMPILE=arm-linux-gnueabihf-
 OUTPUT_DIR=$(CURDIR)/output
 BUILD_PATH=$(CURDIR)/build
@@ -75,7 +76,7 @@ ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
 	$(Q)false
 else
-	$(Q)scripts/sunxi-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
+	$(Q)$(SUDO) scripts/sunxi-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
 endif
 
 libs: mali-libs/.git cedarx-libs/.git

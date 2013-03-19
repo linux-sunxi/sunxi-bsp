@@ -17,12 +17,12 @@ cleanup() {
 	for x in $MNTBOOT $MNTROOT; do
 		x=$(readlink -f "$x")
 		if grep -q " $x " /proc/mounts; then
-			sudo umount "$x" || exit 1
+			umount "$x" || exit 1
 		fi
 	done
 
 	# and delete temporal files
-	sudo rm -rf --one-file-system "$TEMP"
+	rm -rf --one-file-system "$TEMP"
 }
 
 die() {
@@ -58,7 +58,7 @@ checkSyntax () {
 
 umountSD () {
 	local partlist=$(grep "^$1" /proc/mounts | cut -d' ' -f1)
-	[ -z "$partlist" ] || sudo umount $partlist
+	[ -z "$partlist" ] || umount $partlist
 }
 
 partitionSD () {
@@ -74,11 +74,11 @@ partitionSD () {
 	esac
 
 	title "Partitioning $dev"
-	sudo dd if=/dev/zero of="$dev" bs=1M count=1 ||
+	dd if=/dev/zero of="$dev" bs=1M count=1 ||
 		die "$dev: failed to zero the first MB"
 
 	x=$(expr $BOOT_SIZE \* 2048)
-	sudo sfdisk --in-order -L -uS "$dev" <<-EOT
+	sfdisk --in-order -L -uS "$dev" <<-EOT
 	2048,$x,c
 	,,L
 	EOT
@@ -86,15 +86,15 @@ partitionSD () {
 		die "$dev: failed to repartition media"
 
 	sleep 1
-	sudo sfdisk -L -R "$dev" ||
+	sfdisk -L -R "$dev" ||
 		die "$dev: failed to reload media"
 
 	title "Format Partition 1 to VFAT"
-	sudo mkfs.vfat -I ${subdevice}1 ||
+	mkfs.vfat -I ${subdevice}1 ||
 		die "${subdevice}1: failed to format partition"
 
 	title "Format Partition 2 to EXT4"
-	sudo mkfs.ext4  ${subdevice}2 ||
+	mkfs.ext4  ${subdevice}2 ||
 		die "${subdevice}2: failed to format partition"
 }
 
@@ -106,16 +106,16 @@ extract() {
 	cd "$2"
 	case "$f" in
 	*.tar.bz2|*.tbz2)
-		sudo tar xjf "$f"
+		tar xjf "$f"
 		;;
 	*.tar.gz|*.tgz)
-		sudo tar xzf "$f"
+		tar xzf "$f"
 		;;
 	*.7z|*.lzma)
-		sudo 7z x "$f"
+		7z x "$f"
 		;;
 	*.tar.xz)
-		sudo tar xJf "$f"
+		tar xJf "$f"
 		;;
 	*)
 		die "$f: unknown file extension"
@@ -126,12 +126,12 @@ extract() {
 
 copyUbootSpl ()
 {
-	sudo dd if=$2 bs=1024 of=$1 seek=8
+	dd if=$2 bs=1024 of=$1 seek=8
 }
 
 copyUboot ()
 {
-	sudo dd if=$2 bs=1024 of=$1 seek=32
+	dd if=$2 bs=1024 of=$1 seek=32
 }
 
 mountPartitions ()
@@ -149,10 +149,10 @@ mountPartitions ()
 	mkdir -p "$MNTROOT" "$MNTBOOT" ||
 		die "Failed to create SD card mount points"
 
-	sudo mount ${subdevice}1 "$MNTBOOT" ||
+	mount ${subdevice}1 "$MNTBOOT" ||
 		die "Failed to mount VFAT partition (SD)"
 
-	sudo mount ${subdevice}2 "$MNTROOT" ||
+	mount ${subdevice}2 "$MNTROOT" ||
 		die "Failed to mount EXT4 partition (SD)"
 }
 
@@ -162,12 +162,12 @@ copyData ()
 	local rootfs_copied=
 
 	echo "Copy VFAT partition files to SD Card"
-	sudo cp $HWPACKDIR/kernel/uImage $MNTBOOT ||
+	cp $HWPACKDIR/kernel/uImage $MNTBOOT ||
 		die "Failed to copy VFAT partition data to SD Card"
-	sudo cp $HWPACKDIR/kernel/*.bin $MNTBOOT/script.bin ||
+	cp $HWPACKDIR/kernel/*.bin $MNTBOOT/script.bin ||
 		die "Failed to copy VFAT partition data to SD Card"
 	if [ -s $HWPACKDIR/kernel/*.scr ]; then
-		sudo cp $HWPACKDIR/kernel/*.scr $MNTBOOT/boot.scr ||
+		cp $HWPACKDIR/kernel/*.scr $MNTBOOT/boot.scr ||
 			die "Failed to copy VFAT partition data to SD Card"
 	fi
 
@@ -180,7 +180,7 @@ copyData ()
 
 			if [ -d "$d/sbin" ]; then
 				rootfs_copied=1
-				sudo cp -a "$d"/* "$MNTROOT" ||
+				cp -a "$d"/* "$MNTROOT" ||
 					die "Failed to copy rootfs partition data to SD Card"
 				break
 			fi
@@ -198,7 +198,7 @@ copyData ()
 			mv $ROOTFS/lib $ROOTFS/usr
 		fi
 	fi
-        sudo cp -a $HWPACKDIR/rootfs/* $MNTROOT/ ||
+        cp -a $HWPACKDIR/rootfs/* $MNTROOT/ ||
 		die "Failed to copy rootfs hwpack files to SD Card"
 }
 
