@@ -106,16 +106,16 @@ extract() {
 	cd "$2"
 	case "$f" in
 	*.tar.bz2|*.tbz2)
-		tar xjf "$f"
+		tar xjpf "$f"
 		;;
 	*.tar.gz|*.tgz)
-		tar xzf "$f"
+		tar xzpf "$f"
 		;;
 	*.7z|*.lzma)
 		7z x "$f"
 		;;
 	*.tar.xz)
-		tar xJf "$f"
+		tar xJpf "$f"
 		;;
 	*)
 		die "$f: unknown file extension"
