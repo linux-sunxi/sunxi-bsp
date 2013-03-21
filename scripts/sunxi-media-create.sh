@@ -195,7 +195,12 @@ copyData ()
 		# Find where it points.  For Fedora, we expect usr/lib.
 		DEST=`/bin/ls -l $MNTROOT/lib | sed -e 's,.* ,,'`
 		if [ "$DEST" = "usr/lib" ]; then
-			mv $ROOTFS/lib $ROOTFS/usr
+			d="$HWPACKDIR/rootfs"
+			if [ -d "$d/lib" ]; then
+				mkdir -p "$d/usr/lib/"
+				mv "$d/lib"/* "$d/usr/lib/"
+				rmdir "$d/lib"
+			fi
 		fi
 	fi
         cp -a $HWPACKDIR/rootfs/* $MNTROOT/ ||
