@@ -148,7 +148,6 @@ do_pack()
 		make_sys_configs ${SOURCE_DIR}/default/sys_config_android.fex
 		make_boot0_boot1
 		make_bootfs ${SOURCE_DIR}/default/env_android.cfg
-		make_boot_img
 		modify_image_cfg ${SOURCE_DIR}/default/image_android.cfg
 		cp_android_files
 		do_addchecksum
