@@ -89,6 +89,10 @@ partitionSD () {
 	sfdisk -L -R "$dev" ||
 		die "$dev: failed to reload media"
 
+	sleep 1
+	partprobe "$dev" ||
+		die "$dev: failed to reload partition table"
+
 	title "Format Partition 1 to VFAT"
 	mkfs.vfat -I ${subdevice}1 ||
 		die "${subdevice}1: failed to format partition"
