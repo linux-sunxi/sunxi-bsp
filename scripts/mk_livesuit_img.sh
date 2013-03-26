@@ -104,24 +104,12 @@ make_boot0_boot1()
 make_sys_configs()
 {
 	echo "Make sys configs: $1"
-	#busybox unix2dos sys_config1.fex
-	#busybox unix2dos sys_config.fex
 	cp $1 ${BUILD_DIR}/sys_config.fex
 	${BINS}/script ${BUILD_DIR}/sys_config.fex
 
 	cp sunxi-boards/sys_config/${SOC}/${BOARD}.fex ${BUILD_DIR}/sys_config1.fex
 	${SUNXI_TOOLS}/fex2bin ${BUILD_DIR}/sys_config1.fex > ${BUILD_DIR}/sys_config1.bin
 
-}
-
-make_boot_img()
-{
-	echo "Make android boot image"
-	${BINS}/mkbootimg --kernel ./build/${KERNEL_CONFIG}-linux/bImage \
-		--ramdisk ./linux-sunxi/rootfs/sun4i_rootfs.cpio.gz \
-		--board ${BOARD} \
-		--base 0x40000000 \
-		-o ${BUILD_DIR}/boot.fex
 }
 
 cp_android_files()
@@ -163,7 +151,6 @@ do_pack()
 		make_sys_configs ${SOURCE_DIR}/default/sys_config_linux.fex
 		make_boot0_boot1
 		make_bootfs ${SOURCE_DIR}/default/env_linux.cfg
-		make_boot_img
 		cp "$ROOTFS" ${BUILD_DIR}/rootfs.fex
 		modify_image_cfg ${SOURCE_DIR}/default/image_linux.cfg
 	fi
