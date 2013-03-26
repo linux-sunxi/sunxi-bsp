@@ -76,6 +76,14 @@ make_bootfs()
 	mkdir -pv ${BUILD_DIR}/bootfs/vendor/system/media
 	echo "empty" > ${BUILD_DIR}/bootfs/vendor/system/media/vendor
 
+	if [ $ANDROID = false ]; then
+		echo "Copying linux kernel and modules"
+		cp -r ./build/${KERNEL_CONFIG}-linux/arch/arm/boot/uImage ${BUILD_DIR}/bootfs/
+		cp -r ./build/${KERNEL_CONFIG}-linux/output/lib/modules ${BUILD_DIR}/bootfs/lib/
+		rm -f ${BUILD_DIR}/bootfs/lib/modules/*/source
+		rm -f ${BUILD_DIR}/bootfs/lib/modules/*/build
+	fi
+
 	# build
 	${BINS}/update_mbr ${BUILD_DIR}/sys_config.bin ${BUILD_DIR}/mbr.fex 4 16777216
 	${FSBUILD} ${BUILD_DIR}/bootfs.ini ${BUILD_DIR}/split_xxxx.fex
