@@ -21,6 +21,8 @@ make_rootfs()
 	local fsizeinbytes=$(gzip -lq "$rootfs" | awk -F" " '{print $2}')
 	local fsizeMB=$(expr $fsizeinbytes / 1024 / 1024 + 200)
 	local target=$PWD"/target_tmp"
+	local d= x=
+	local rootfs_copied=
 
 	echo "Make linux.ext4 (size="$fsizeMB")"
 	mkdir -p $target
@@ -31,22 +33,26 @@ make_rootfs()
 
 	cd $target
 	echo "Unpacking $rootfs"
-	sudo tar xzf $rootfs
-	if [ -d ./etc ]; then
-		echo "Standard rootfs"
-		# do nothing
-	elif [ -d ./binary/boot/filesystem.dir ]; then
-		echo "Linaro rootfs"
-		sudo mv ./binary/boot/filesystem.dir/* .
-		sudo rm -rf ./binary
-	else
-		die "Unsupported rootfs"
-	fi
+	sudo tar xzpf $rootfs
+
+	for x in '' \
+		'binary/boot/filesystem.dir' 'binary'; do
+
+		d="$target${x:+/$x}"
+
+		if [ -d "$d/sbin" ]; then
+			rootfs_copied=1
+			sudo mv "$d"/* $target ||
+				die "Failed to copy rootfs data"
+			break
+		fi
+	done
+
+	[ -n "$rootfs_copied" ] || die "Unsupported rootfs"
+
 	cd - > /dev/null
 
-
 	mv linux.ext4 $output
-
 }
 
 [ $# -eq 2 ] || die "Usage: $0 [rootfs.tar.gz] [output]"
