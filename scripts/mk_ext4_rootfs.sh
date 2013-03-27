@@ -1,7 +1,13 @@
 
 
+cleanup() {
+	sudo umount $target
+	sudo sudo rm -rf $target
+}
+
 die() {
 	echo "$*" >&2
+	cleanup
 	exit 1
 }
 
@@ -38,13 +44,13 @@ make_rootfs()
 	fi
 	cd - > /dev/null
 
-	sudo umount $target
-	sudo sudo rm -rf $target
 
 	mv linux.ext4 $output
+
 }
 
 [ $# -eq 2 ] || die "Usage: $0 [rootfs.tar.gz] [output]"
 
 make_rootfs "$1" "$2"
+cleanup
 
