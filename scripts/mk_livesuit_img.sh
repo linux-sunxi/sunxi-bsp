@@ -157,6 +157,7 @@ do_pack()
 
 	echo "Generating image"
 	${DRAGON} ${BUILD_DIR}/image.cfg
+	rm -rf ${BUILD_DIR}
 	echo "Done"
 }
 
