@@ -40,7 +40,7 @@ cp_debian_files() {
 }
 
 cp_android_files() {
-	local rootfs="$1"
+	local rootfs="$1" f=
 
 	echo "Android hwpack"
 
@@ -53,8 +53,12 @@ cp_android_files() {
 	mkdir -p "$rootfs/system/lib/modules"
 	find "$K_O_PATH/output/lib/modules" -name "*.ko"  -print0 |xargs -0 cp -t "$rootfs/system/lib/modules/"
 
-	## boot.scr (optional)
-	[ ! -s "build/boot.scr" ] || cp "build/boot.scr" "$rootfs/boot/boot.scr"
+	## boot scripts (optional)
+	for f in boot.scr uEnv.txt; do
+		if [ -s "build/$f" ]; then
+			cp "build/$f" "$rootfs/boot/"
+		fi
+	done
 }
 
 create_hwpack() {
@@ -62,6 +66,7 @@ create_hwpack() {
 	local rootfs="$HWPACK_DIR/rootfs"
 	local kerneldir="$HWPACK_DIR/kernel"
 	local bootloader="$HWPACK_DIR/bootloader"
+	local f=
 
 	rm -rf "$HWPACK_DIR"
 
@@ -78,8 +83,12 @@ create_hwpack() {
 	cp -r "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
 	cp -r "build/$BOARD.bin" "$kerneldir/script.bin"
 
-	## boot.scr (optional)
-	[ ! -s "build/boot.scr" ] || cp "build/boot.scr" "$kerneldir/boot.scr"
+	## boot scripts (optional)
+	for f in boot.scr uEnv.txt; do
+		if [ -s "build/$f" ]; then
+			cp "build/$f" "$kerneldir/"
+		fi
+	done
 
 	## bootloader
 	mkdir -p "$bootloader"
