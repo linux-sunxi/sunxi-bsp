@@ -53,8 +53,8 @@ cp_android_files() {
 	mkdir -p "$rootfs/system/lib/modules"
 	find "$K_O_PATH/output/lib/modules" -name "*.ko"  -print0 |xargs -0 cp -t "$rootfs/system/lib/modules/"
 
-	## boot.scr
-	cp "build/boot.scr" "${rootfs}/boot/boot.scr"
+	## boot.scr (optional)
+	[ ! -s "build/boot.scr" ] || cp "build/boot.scr" "$rootfs/boot/boot.scr"
 }
 
 create_hwpack() {
