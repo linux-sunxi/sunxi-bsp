@@ -1,8 +1,9 @@
 
+TARGET=$PWD"/target_tmp"
 
 cleanup() {
-	sudo umount $target
-	sudo sudo rm -rf $target
+	sudo umount $TARGET || true
+	sudo sudo rm -rf $TARGET
 }
 
 die() {
@@ -20,29 +21,29 @@ make_rootfs()
 	local output=$(readlink -f "$2")
 	local fsizeinbytes=$(gzip -lq "$rootfs" | awk -F" " '{print $2}')
 	local fsizeMB=$(expr $fsizeinbytes / 1024 / 1024 + 200)
-	local target=$PWD"/target_tmp"
 	local d= x=
 	local rootfs_copied=
 
 	echo "Make linux.ext4 (size="$fsizeMB")"
-	mkdir -p $target
+	mkdir -p $TARGET
 	rm -f linux.ext4
 	dd if=/dev/zero of=linux.ext4 bs=1M count="$fsizeMB"
 	mkfs.ext4 linux.ext4
-	sudo mount linux.ext4 $target -o loop=/dev/loop0
+	sudo umount $TARGET || true
+	sudo mount linux.ext4 $TARGET -o loop=/dev/loop0
 
-	cd $target
+	cd $TARGET
 	echo "Unpacking $rootfs"
 	sudo tar xzpf $rootfs
 
 	for x in '' \
 		'binary/boot/filesystem.dir' 'binary'; do
 
-		d="$target${x:+/$x}"
+		d="$TARGET${x:+/$x}"
 
 		if [ -d "$d/sbin" ]; then
 			rootfs_copied=1
-			sudo mv "$d"/* $target ||
+			sudo mv "$d"/* $TARGET ||
 				die "Failed to copy rootfs data"
 			break
 		fi
