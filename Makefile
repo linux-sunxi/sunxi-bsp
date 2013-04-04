@@ -66,11 +66,20 @@ $(HWPACK): u-boot boot.scr script.bin linux libs
 
 hwpack: $(HWPACK)
 
+## livesuit
+rootfs.ext4: $(ROOTFS)
+	$(Q)scripts/mk_ext4_rootfs.sh $(ROOTFS) rootfs.ext4
+
+livesuit: allwinner-tools/.git rootfs.ext4
+	$(Q)scripts/mk_livesuit_img.sh -R rootfs.ext4
+
+## android
 android-%:
 	$(Q)scripts/mk_android.sh $*
 
 android: android-build
 
+## hwpack-install
 hwpack-install: $(HWPACK)
 ifndef SD_CARD
 	$(Q)echo "Define SD_CARD variable"
