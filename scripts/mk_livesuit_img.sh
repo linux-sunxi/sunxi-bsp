@@ -141,18 +141,18 @@ do_pack()
 #    fi
 	mkdir -p ${BUILD_DIR}
 	if [ $ANDROID = true ]; then
-		make_sys_configs ${SOURCE_DIR}/default/sys_config_android.fex
+		make_sys_configs ${LIVESUIT_DIR}/default/sys_config_android.fex
 		make_boot0_boot1
-		make_bootfs ${SOURCE_DIR}/default/env_android.cfg
-		modify_image_cfg ${SOURCE_DIR}/default/image_android.cfg
+		make_bootfs ${LIVESUIT_DIR}/default/env_android.cfg
+		modify_image_cfg ${LIVESUIT_DIR}/default/image_android.cfg
 		cp_android_files
 		do_addchecksum
 	else
-		make_sys_configs ${SOURCE_DIR}/default/sys_config_linux.fex
+		make_sys_configs ${LIVESUIT_DIR}/default/sys_config_linux.fex
 		make_boot0_boot1
-		make_bootfs ${SOURCE_DIR}/default/env_linux.cfg
+		make_bootfs ${LIVESUIT_DIR}/default/env_linux.cfg
 		cp "$ROOTFS" ${BUILD_DIR}/rootfs.fex
-		modify_image_cfg ${SOURCE_DIR}/default/image_linux.cfg
+		modify_image_cfg ${LIVESUIT_DIR}/default/image_linux.cfg
 	fi
 
 	echo "Generating image"
