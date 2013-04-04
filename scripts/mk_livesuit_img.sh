@@ -78,8 +78,9 @@ make_bootfs()
 
 	if [ $ANDROID = false ]; then
 		echo "Copying linux kernel and modules"
-		cp -r ./build/${KERNEL_CONFIG}-linux/arch/arm/boot/uImage ${BUILD_DIR}/bootfs/
-		cp -r ./build/${KERNEL_CONFIG}-linux/output/lib/modules ${BUILD_DIR}/bootfs/lib/
+		cp ./build/${KERNEL_CONFIG}-linux/arch/arm/boot/uImage ${BUILD_DIR}/bootfs/
+		mkdir -pv ${BUILD_DIR}/bootfs/lib/modules
+		cp -a ./build/${KERNEL_CONFIG}-linux/output/lib/modules ${BUILD_DIR}/bootfs/lib
 		rm -f ${BUILD_DIR}/bootfs/lib/modules/*/source
 		rm -f ${BUILD_DIR}/bootfs/lib/modules/*/build
 	fi
