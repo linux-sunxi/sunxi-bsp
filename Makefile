@@ -1,6 +1,6 @@
 .PHONY: all clean help
 .PHONY: tools u-boot linux libs hwpack hwpack-install
-.PHONY: linux-config
+.PHONY: linux-config livesuit android
 
 SUDO=sudo
 CROSS_COMPILE=arm-linux-gnueabihf-
