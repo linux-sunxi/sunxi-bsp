@@ -114,9 +114,9 @@ make_sys_configs()
 
 cp_android_files()
 {
-	cp -rf $RECOVERY ${BUILD_DIR}/recovery.fex
-	cp -rf $BOOT ${BUILD_DIR}/boot.fex
-	cp -rf $SYSTEM ${BUILD_DIR}/system.fex
+	ln -sv $RECOVERY ${BUILD_DIR}/recovery.fex
+	ln -sv $BOOT ${BUILD_DIR}/boot.fex
+	ln -sv $SYSTEM ${BUILD_DIR}/system.fex
 
 }
 
@@ -151,7 +151,7 @@ do_pack()
 		make_sys_configs ${LIVESUIT_DIR}/default/sys_config_linux.fex
 		make_boot0_boot1
 		make_bootfs ${LIVESUIT_DIR}/default/env_linux.cfg
-		cp "$ROOTFS" ${BUILD_DIR}/rootfs.fex
+		ln -sv "$ROOTFS" ${BUILD_DIR}/rootfs.fex
 		modify_image_cfg ${LIVESUIT_DIR}/default/image_linux.cfg
 	fi
 
