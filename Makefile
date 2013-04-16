@@ -7,6 +7,7 @@ CROSS_COMPILE=arm-linux-gnueabihf-
 OUTPUT_DIR=$(CURDIR)/output
 BUILD_PATH=$(CURDIR)/build
 ROOTFS?=norootfs
+ROOTFS_BASENAME=$(basename $(basename $(ROOTFS)))
 Q=
 J=$(shell expr `grep ^processor /proc/cpuinfo  | wc -l` \* 2)
 
@@ -67,11 +68,11 @@ $(HWPACK): u-boot boot.scr script.bin linux libs
 hwpack: $(HWPACK)
 
 ## livesuit
-rootfs.ext4: $(ROOTFS)
-	$(Q)scripts/mk_ext4_rootfs.sh $(ROOTFS) rootfs.ext4
+%.ext4: %.tar.gz
+	$(Q)scripts/mk_ext4_rootfs.sh $< $@
 
-livesuit: allwinner-tools/.git rootfs.ext4
-	$(Q)scripts/mk_livesuit_img.sh -R rootfs.ext4
+livesuit: allwinner-tools/.git $(ROOTFS_BASENAME).ext4 #linux
+	$(Q)scripts/mk_livesuit_img.sh -R $(ROOTFS_BASENAME).ext4
 
 ## android
 android-%:
