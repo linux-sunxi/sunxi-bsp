@@ -34,7 +34,7 @@ make_rootfs()
 
 	cd $TARGET
 	echo "Unpacking $rootfs"
-	sudo tar xzpf $rootfs
+	sudo tar xzpf $rootfs || die "Unable to extract rootfs"
 
 	for x in '' \
 		'binary/boot/filesystem.dir' 'binary'; do
