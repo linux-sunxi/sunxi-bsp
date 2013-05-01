@@ -71,7 +71,7 @@ hwpack: $(HWPACK)
 %.ext4: %.tar.gz
 	$(Q)scripts/mk_ext4_rootfs.sh $< $@
 
-livesuit: allwinner-tools/.git $(ROOTFS_BASENAME).ext4 #linux
+livesuit: allwinner-tools/.git $(ROOTFS_BASENAME).ext4 tools linux
 	$(Q)scripts/mk_livesuit_img.sh -R $(ROOTFS_BASENAME).ext4
 
 ## android
