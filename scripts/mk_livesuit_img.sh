@@ -155,7 +155,7 @@ do_pack()
 		ln -svf "$ROOTFS" ${BUILD_DIR}/rootfs.fex
 		modify_image_cfg ${LIVESUIT_DIR}/default/image_linux.cfg
 	fi
-
+	mkdir -pv output
 	echo "Generating image"
 	${DRAGON} ${BUILD_DIR}/image.cfg
 	rm -rf ${BUILD_DIR}
