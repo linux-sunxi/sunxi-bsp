@@ -82,7 +82,7 @@ android: android-build
 
 ## hwpack-install
 hwpack-install: $(HWPACK)
-	$(Q)[ -s $(SD_CARD) ] || "Define SD_CARD variable"
+	$(Q)[ -s $(SD_CARD) ] || echo "Define SD_CARD variable"
 	$(Q)$(SUDO) scripts/sunxi-media-create.sh $(SD_CARD) $(HWPACK) $(ROOTFS)
 
 libs: cedarx-libs/.git
