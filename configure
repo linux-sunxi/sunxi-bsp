@@ -19,12 +19,14 @@ generate_board_mk() {
 
 	[ "$board" = "$1" ] || android=yes
 	soc=$(ls -1 sunxi-boards/sys_config/*/$board.fex 2> /dev/null | cut -d/ -f3)
+	loadaddr=0x40008000 #Hardcoded for now
 
 	cat <<-EOT
 	BOARD=$board
 	ANDROID=$android
 	SOC=$soc
 	UBOOT_CONFIG=$board
+	LOADADDR=$loadaddr
 	EOT
 
 	case "$soc" in
@@ -32,12 +34,14 @@ generate_board_mk() {
 		cat <<-EOT
 		MACH=sun4i
 		KERNEL_CONFIG=sun4i${android:+_crane}_defconfig
+		DTB=sun4i-a10-$board
 		EOT
 		;;
 	a13)
 		cat <<-EOT
 		MACH=sun5i
 		KERNEL_CONFIG=a13${android:+_nuclear}_defconfig
+		DTB=sun5i-a13-$board
 		EOT
 		;;
 	*)

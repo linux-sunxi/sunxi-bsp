@@ -76,6 +76,8 @@ create_hwpack() {
 	## kernel
 	mkdir -p "$kerneldir"
 	cp -r "$K_O_PATH"/arch/arm/boot/uImage "$kerneldir/"
+	cp -r "$K_O_PATH"/arch/arm/boot/dts/${DTB}.dtb "$kerneldir/"
+	cp -r "$K_O_PATH"/arch/arm/boot/uImage-${DTB} "$kerneldir/"
 	cp -r "build/$BOARD.bin" "$kerneldir/script.bin"
 
 	## boot.scr (optional)

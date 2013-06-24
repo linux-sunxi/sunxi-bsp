@@ -39,13 +39,19 @@ u-boot: $(U_CONFIG_H)
 ## linux
 $(K_DOT_CONFIG): linux-sunxi/.git
 	$(Q)mkdir -p $(K_O_PATH)
-	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm $(KERNEL_CONFIG)
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm LOADADDR=${LOADADDR} $(KERNEL_CONFIG)
 
 linux: $(K_DOT_CONFIG)
-	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm oldconfig
-	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output uImage modules
-	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm LOADADDR=${LOADADDR} oldconfig
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm LOADADDR=${LOADADDR} CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output uImage modules
+	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm LOADADDR=${LOADADDR} CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
 	cd $(K_O_PATH) && ${CROSS_COMPILE}objcopy -R .note.gnu.build-id -S -O binary vmlinux bImage
+
+dtb: linux
+	${Q}${MAKE} -C linux-sunxi O=${K_O_PATH} ARCH=arm INSTALL_MOD_PATH=output ${DTB}.dtb
+	cat ${K_O_PATH}/arch/arm/boot/zImage ${K_O_PATH}/arch/arm/boot/dts/${DTB}.dtb > ${K_O_PATH}/arch/arm/boot/zImage-${DTB}
+	mkimage -A arm -O linux -a ${LOADADDR} -e ${LOADADDR} -n ${DTB} -d ${K_O_PATH}/arch/arm/boot/zImage-${DTB} ${K_O_PATH}/arch/arm/boot/uImage-${DTB}
+
 
 linux-config: $(K_DOT_CONFIG)
 	$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm menuconfig
@@ -61,7 +67,7 @@ boot.scr:
 	$(Q)[ ! -s boot.cmd ] || mkimage -A arm -O u-boot -T script -C none -n "boot" -d boot.cmd $(BUILD_PATH)/boot.scr
 
 ## hwpack
-$(HWPACK): u-boot boot.scr script.bin linux libs
+$(HWPACK): u-boot boot.scr script.bin linux dtb libs
 	$(Q)scripts/mk_hwpack.sh $@
 
 hwpack: $(HWPACK)
@@ -113,6 +119,7 @@ help:
 	@echo "Optional targets:"
 	@echo "  make linux           - Builds linux kernel"
 	@echo "  make linux-config    - Menuconfig"
+	@echo "  make dtb             - Builds Device Tree binary"
 	@echo "  make u-boot          - Builds u-boot"
 	@echo "  make libs            - Download libs"
 	@echo ""
