@@ -44,8 +44,15 @@ generate_board_mk() {
 		DTB=sun5i-a13-$board
 		EOT
 		;;
+	a20)
+		cat <<-EOT
+		MACH=sun7i
+		KERNEL_CONFIG=a20${android:+_nuclear}_defconfig
+		DTB=sun7i-a20-$board
+		EOT
+		;;
 	*)
-		echo "$soc: unsupport SoC" >&2
+		echo "$soc: unsupported SoC" >&2
 		return 1
 		;;
 	esac
