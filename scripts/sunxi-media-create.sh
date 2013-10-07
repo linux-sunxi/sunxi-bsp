@@ -131,7 +131,7 @@ copyUbootSpl ()
 
 copyUboot ()
 {
-	dd if=$2 bs=1024 of=$1 seek=32
+	dd if=$2 bs=1024 of=$1 seek=40
 }
 
 mountPartitions ()
@@ -221,7 +221,7 @@ fi
 
 title "Copy U-Boot/SPL to SD Card"
 copyUbootSpl $1 $HWPACKDIR/bootloader/sunxi-spl.bin
-copyUboot $1 $HWPACKDIR/bootloader/u-boot.bin
+copyUboot $1 $HWPACKDIR/bootloader/u-boot.img
 mountPartitions $1
 copyData
 cleanup
