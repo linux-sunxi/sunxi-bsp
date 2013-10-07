@@ -40,6 +40,12 @@ generate_board_mk() {
 		KERNEL_CONFIG=a13${android:+_nuclear}_defconfig
 		EOT
 		;;
+	a20)
+		cat <<-EOT
+		MACH=sun7i
+		KERNEL_CONFIG=sun7i${android:+_nuclear}_defconfig
+		EOT
+		;;
 	*)
 		echo "$soc: unsupport SoC" >&2
 		return 1
