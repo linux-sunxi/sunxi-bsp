@@ -47,7 +47,7 @@ generate_board_mk() {
 		EOT
 		;;
 	*)
-		echo "$soc: unsupport SoC" >&2
+		echo "$soc: unsupported SoC" >&2
 		return 1
 		;;
 	esac
