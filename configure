@@ -43,7 +43,7 @@ generate_board_mk() {
 	a20)
 		cat <<-EOT
 		MACH=sun7i
-		KERNEL_CONFIG=sun7i${android:+_nuclear}_defconfig
+		KERNEL_CONFIG=sun7i${android:+_wing}_defconfig
 		EOT
 		;;
 	*)
