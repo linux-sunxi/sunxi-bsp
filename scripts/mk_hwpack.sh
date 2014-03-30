@@ -92,6 +92,7 @@ create_hwpack() {
 
 	## bootloader
 	mkdir -p "$bootloader"
+	cp -r "$U_O_PATH/u-boot-sunxi-with-spl.bin" "$bootloader/"
 	cp -r "$U_O_PATH/spl/sunxi-spl.bin" "$bootloader/"
 	cp -r "$U_O_PATH/u-boot.bin" "$bootloader/"
 	cp -r "$U_O_PATH/u-boot.img" "$bootloader/"
