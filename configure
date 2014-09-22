@@ -37,7 +37,7 @@ generate_board_mk() {
 	a13)
 		cat <<-EOT
 		MACH=sun5i
-		KERNEL_CONFIG=a13${android:+_nuclear}_defconfig
+		KERNEL_CONFIG=sun5i${android:+_nuclear}_defconfig
 		EOT
 		;;
 	a20)
