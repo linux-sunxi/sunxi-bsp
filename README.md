@@ -1,11 +1,14 @@
-sunxi-bsp
+OrangePi-bsp
 =========
 
 Getting Started
 ---------------
 
-1. Choose a board doing `./configure my_board`, or `./configure` to see
-   the list of supported ones.
+1. Choose a board doing:
+   For Orange Pi:
+   `./configure orangepi`,
+   For Orange Pi mini:
+   `./configure orangepimini`.
 
 2. Run 'make' to build hwpack or 'make help' to list available targets
 
